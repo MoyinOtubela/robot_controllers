@@ -1,0 +1,63 @@
+robbie:
+
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50  
+
+  # Joint Controllers ---------------------------------------
+  leftWheel_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: wheel_left_joint
+    pid: {p: 100.0, i: 0.1, d: 10.0}
+  rightWheel_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: wheel_right_joint
+    pid: {p: 100.0, i: 0.1, d: 10.0}
+  stab_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: stab_joint
+    pid: {p: 3000.0, i: 0.1, d: 20.0}
+	stab_wheel_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: stabWheel_joint
+    pid: {p: 100.0, i: 0.1, d: 20.0}
+  knee_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: knee_joint
+    pid: {p: 3500.0, i: 10.0, d: 100.0}
+  hip_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: hip_joint
+    pid: {p: 2000.0, i: 0.1, d: 30}
+  left_shoulder_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: shoulder_left_joint
+    pid: {p: 100.0, i: 0.1, d: 10.0}
+  right_shoulder_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: shoulder_right_joint
+    pid: {p: 100.0, i: 0.1, d: 10.0}
+  right_arm_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: elbow_right_joint
+    pid: {p: 100.0, i: 0.1, d: 10.0}
+  left_arm_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: elbow_left_joint
+    pid: {p: 100.0, i: 0.1, d: 10.0}
+  lhm_right_wheel_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: lhm_wheel_right_joint
+    pid: {p: 100.0, i: 0.1, d: 10.0}
+  lhm_left_wheel_effort_controller:
+    type: effort_controllers/JointEffortController
+    joint: lhm_wheel_left_joint
+    pid: {p: 100.0, i: 0.1, d: 10.0}
+  lhm_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: lhm_torso_joint
+    pid: {p: 4000.0, i: 0.1, d: 50.0}
+
+
+

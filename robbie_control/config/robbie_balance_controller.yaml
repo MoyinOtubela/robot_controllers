@@ -1,0 +1,11 @@
+robbie:  
+  hip_balance_controller:
+    type: hip_balance_controller/HipBalanceController
+    joint: hip_joint
+    pid:
+     p: 2000
+     i: 0.1
+     d: 30
+     i_clamp: 0.3
+
+    setpoint: 0

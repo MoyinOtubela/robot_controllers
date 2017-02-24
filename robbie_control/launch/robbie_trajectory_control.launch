@@ -1,0 +1,29 @@
+<launch>
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find robbie_control)/config/robbie_trajectory_control.yaml" command="load"/>
+
+
+  <node name="controller_spawner"
+    pkg="controller_manager"
+    type="spawner" respawn="false"
+    output="screen" ns="robbie"
+    args="joint_state_controller
+          whole_body_controller
+          "
+  />
+          <!-- stand_controller -->
+          <!-- stand_controller_no_hip -->
+          <!-- stand_controller_no_hip_knee -->
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
+    <param name="robot_description" command="$(find xacro)/xacro.py '$(find robbie_description)/urdf/robbie.xacro'" />
+    <remap from="/joint_states" to="/robbie/joint_states" />
+  </node>
+
+
+</launch>
+<!--           shoulder_swing_controller
+          right_arm_position_controller
+          left_arm_position_controller
+ -->

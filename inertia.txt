@@ -1,0 +1,329 @@
+Shank Wheel
+Mass properties of shankWheel ( Part Configuration - Default )
+     Coordinate system: -- default --
+
+Mass (user-overridden) = 5000.00 grams
+
+Volume = 453274.87 cubic millimeters
+
+Surface area = 239931.20  square millimeters
+
+Center of mass: ( millimeters )
+	X = -14.24
+	Y = 4.05
+	Z = 5.00
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = (-0.00, 1.00, 0.00)   	Px = 13002819.05
+	 Iy = (0.00, 0.00, 1.00)   	Py = 13021682.91
+	 Iz = (1.00, 0.00, 0.00)   	Pz = 23357330.47
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 23357329.16	Lxy = -3690.23	Lxz = 0.49
+	Lyx = -3690.23	Lyy = 13002820.36	Lyz = 0.00
+	Lzx = 0.49	Lzy = 0.00	Lzz = 13021682.91
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 23564155.52	Ixy = -292215.55	Ixz = -355807.11
+	Iyx = -292215.55	Iyy = 14142197.18	Iyz = 101182.30
+	Izx = -355807.11	Izy = 101182.30	Izz = 14118331.35
+____________________________________________________________________________________________________________
+
+
+Shank
+Mass properties of SHANK_ASS ( Part Configuration - Default )
+     Coordinate system: -- default --
+
+Mass (user-overridden) = 6000.00 grams
+
+Volume = 2293173.60 cubic millimeters
+
+Surface area = 1007140.11  square millimeters
+
+Center of mass: ( millimeters )
+	X = 317.41
+	Y = 288.62
+	Z = 246.37
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = (1.00, -0.01, 0.00)   	Px = 89646109.97
+	 Iy = (0.01, 1.00, -0.01)   	Py = 123033917.64
+	 Iz = (-0.00, 0.01, 1.00)   	Pz = 199342578.55
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 89648601.85	Lxy = -262842.07	Lxz = 211994.39
+	Lyx = -262842.07	Lyy = 123034173.68	Lyz = -422910.47
+	Lzx = 211994.39	Lzy = -422910.47	Lzz = 199339830.64
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 953663052.61	Ixy = 549414688.58	Ixz = 469422506.92
+	Iyx = 549414688.58	Iyy = 1091736813.40	Iyz = 426228771.26
+	Izx = 469422506.92	Izy = 426228771.26	Izz = 1303668209.19
+
+____________________________________________________________________________________________________________
+
+ stabiliser
+
+Mass properties of STABILISER_ASS_BASIC ( Part Configuration - Default )
+     Coordinate system: -- default --
+
+Mass (user-overridden) = 1000.00 grams
+
+Volume = 239650.51 cubic millimeters
+
+Surface area = 97303.71  square millimeters
+
+Center of mass: ( millimeters )
+	X = 301.43
+	Y = 305.66
+	Z = 278.74
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = (0.00, 0.76, -0.65)   	Px = 529849.98
+	 Iy = (0.00, 0.65, 0.76)   	Py = 6563581.11
+	 Iz = (1.00, 0.00, 0.00)   	Pz = 6891114.51
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 6891114.51	Lxy = 0.00	Lxz = 0.00
+	Lyx = 0.00	Lyy = 3110246.13	Lyz = -2985125.17
+	Lzx = 0.00	Lzy = -2985125.17	Lzz = 3983184.96
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 178011537.88	Ixy = 92134819.74	Ixz = 84021245.20
+	Iyx = 92134819.74	Iyy = 171667801.46	Iyz = 82212834.54
+	Izx = 84021245.20	Izy = 82212834.54	Izz = 188270646.08
+
+
+
+____________________________________________________________________________________________________________
+
+ stabiliser wheel
+
+approximate as cylinder
+____________________________________________________________________________________________________________
+
+ thigh
+
+Mass properties of THIGH_ASS_PART ( Part Configuration - Default )
+     Coordinate system: -- default --
+
+Mass (user-overridden) = 2000.00 grams
+
+Volume = 1327194.80 cubic millimeters
+
+Surface area = 659859.43  square millimeters
+
+Center of mass: ( millimeters )
+	X = -633.60
+	Y = 307.89
+	Z = 562.49
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = (1.00, -0.00, 0.00)   	Px = 23766416.86
+	 Iy = (0.00, 1.00, -0.08)   	Py = 61421625.19
+	 Iz = (0.00, 0.08, 1.00)   	Pz = 75826335.14
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 23766503.22	Lxy = -57100.23	Lxz = -1400.53
+	Lyx = -57100.23	Lyy = 61523536.82	Lyz = -1207827.02
+	Lzx = -1400.53	Lzy = -1207827.02	Lzz = 75724337.14
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 846156459.28	Ixy = -390211034.35	Ixz = -712790150.11
+	Iyx = -390211034.35	Iyy = 1497212102.79	Iyz = 345162986.55
+	Izx = -712790150.11	Izy = 345162986.55	Izz = 1068203835.23
+
+
+____________________________________________________________________________________________________________
+
+torso
+
+Mass properties of upperBodyAss ( Part Configuration - Default )
+     Coordinate system: -- default --
+
+Mass (user-overridden) = 16000.00 grams
+
+Volume = 9788746.30 cubic millimeters
+
+Surface area = 2501556.18  square millimeters
+
+Center of mass: ( millimeters )
+	X = 164.51
+	Y = 405.12
+	Z = 461.96
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = (0.06, 0.99, 0.15)   	Px = 403489975.67
+	 Iy = (-1.00, 0.06, -0.00)   	Py = 406815415.42
+	 Iz = (-0.01, -0.15, 0.99)   	Pz = 599573738.62
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 406820971.71	Lxy = -69548.43	Lxz = 1876934.18
+	Lyx = -69548.43	Lyy = 407636894.95	Lyz = 28168543.22
+	Lzx = 1876934.18	Lzy = 28168543.22	Lzz = 595421263.05
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 6447328582.76	Ixy = 1066292330.81	Ixz = 1217858092.44
+	Iyx = 1066292330.81	Iyy = 4255215247.68	Iyz = 3022574503.71
+	Izx = 1217858092.44	Izy = 3022574503.71	Izz = 3654416091.75
+
+____________________________________________________________________________________________________________
+
+lhm wheel
+
+Mass properties of _8inchWheel ( Part Configuration - Default )
+     Coordinate system: -- default --
+
+Mass (user-overridden) = 400.00 grams
+
+Volume = 282559.88 cubic millimeters
+
+Surface area = 143760.72  square millimeters
+
+Center of mass: ( millimeters )
+	X = -0.00
+	Y = -0.00
+	Z = 12.70
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = (1.00, -0.01, -0.00)   	Px = 1403621.21
+	 Iy = (0.01, 1.00, -0.00)   	Py = 1404362.24
+	 Iz = (0.00, 0.00, 1.00)   	Pz = 2763928.87
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 1403621.23	Lxy = -4.06	Lxz = -7.28
+	Lyx = -4.06	Lyy = 1404362.21	Lyz = -1.35
+	Lzx = -7.28	Lzy = -1.35	Lzz = 2763928.87
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 1468144.86	Ixy = -4.06	Ixz = -15.75
+	Iyx = -4.06	Iyy = 1468885.84	Iyz = -5.27
+	Izx = -15.75	Izy = -5.27	Izz = 2763928.87
+
+
+____________________________________________________________________________________________________________
+
+lhm 
+
+Mass properties of lhm_BASIC ( Part Configuration - Default )
+     Coordinate system: -- default --
+
+Mass (user-overridden) = 2000.00 grams
+
+Volume = 487718.30 cubic millimeters
+
+Surface area = 180873.34  square millimeters
+
+Center of mass: ( millimeters )
+	X = 333.25
+	Y = 44.09
+	Z = 210.30
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = (1.00, -0.00, -0.00)   	Px = 2083770.52
+	 Iy = (-0.00, -0.32, -0.95)   	Py = 26323695.80
+	 Iz = (0.00, 0.95, -0.32)   	Pz = 26916281.69
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 2083770.55	Lxy = -390.90	Lxz = -676.81
+	Lyx = -390.90	Lyy = 26856678.69	Lyz = 178234.06
+	Lzx = -676.81	Lzy = 178234.06	Lzz = 26383298.77
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 94419490.11	Ixy = 29383233.17	Ixz = 140160975.05
+	Iyx = 29383233.17	Iyy = 337415139.81	Iyz = 18720656.37
+	Izx = 140160975.05	Izy = 18720656.37	Izz = 252380542.99
+
+
+____________________________________________________________________________________________________________
+
+shoulder and arm
+
+Mass properties of shoulderAss2_lower ( Part Configuration - Default )
+     Coordinate system: -- default --
+
+Mass (user-overridden) = 250.00 grams
+
+Volume = 19218.21 cubic millimeters
+
+Surface area = 31246.24  square millimeters
+
+Center of mass: ( millimeters )
+	X = 147.50
+	Y = -188.83
+	Z = 159.24
+
+Principal axes of inertia and principal moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass.
+	 Ix = (0.00, 1.00, 0.00)   	Px = 28129.75
+	 Iy = (0.34, 0.00, 0.94)   	Py = 1918492.29
+	 Iz = (0.94, 0.00, -0.34)   	Pz = 1919720.96
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the center of mass and aligned with the output coordinate system.
+	Lxx = 1919580.94	Lxy = 0.09	Lxz = 390.42
+	Lyx = 0.09	Lyy = 28129.75	Lyz = -0.10
+	Lzx = 390.42	Lzy = -0.10	Lzz = 1918632.31
+
+Moments of inertia: ( grams *  square millimeters )
+Taken at the output coordinate system.
+	Ixx = 17173728.34	Ixy = -6963449.96	Ixz = 5872687.31
+	Iyx = -6963449.96	Iyy = 11807174.74	Iyz = -7517630.31
+	Izx = 5872687.31	Izy = -7517630.31	Izz = 16272547.56
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

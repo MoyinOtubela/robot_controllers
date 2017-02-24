@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(robbie_control)
+
+## Find catkin and any catkin packages
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg controller_interface pluginlib)
+
+## Declare ROS messages and services
+#add_message_files(FILES Num.msg)
+#add_service_files(FILES AddTwoInts.srv)
+
+## Generate added messages and services
+generate_messages(DEPENDENCIES std_msgs)
+
+## Declare a catkin package
+catkin_package()
+
+## Build talker and listener
+include_directories(include ${catkin_INCLUDE_DIRS})
+
+add_executable(robot_control src/robot_control.cpp)
+target_link_libraries(robot_control ${catkin_LIBRARIES})
+add_library(hip_controller src/hip_controller.cpp)
+target_link_libraries(hip_controller ${catkin_LIBRARIES})
+add_library(objective_controller src/objective_controller.cpp)
+target_link_libraries(objective_controller ${catkin_LIBRARIES})
+add_library(hip_balance_controller src/hip_balance_controller.cpp)
+target_link_libraries(hip_balance_controller ${catkin_LIBRARIES})
+add_dependencies(robot_control beginner_tutorials_generate_messages_cpp)

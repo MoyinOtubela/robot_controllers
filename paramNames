@@ -1,0 +1,17 @@
+
+calf_deci.stl			->	ascii-shank.stl
+calf_deci_collision.stl		->	ascii-shank_collision.stl
+drive_wheel.stl			->	ascii-driveWheel.stl
+drive_wheel_collision.STL	->	ascii-driveWheel_collision.stl
+STABILISER_ASS-ascii.stl	->	ascii-stabiliser.stl
+STABILISER_ASS_collision.stl	->	ascii-stabiliser_collision.stl
+STABILISER_WHEEL_PART.stl	->	ascii-stabiliserWheel.stl
+STABILISER_WHEEL_PART_collision.stl ->	ascii-stabiliserWheel_collision.stl
+upperBodyAss_ORIGIN.stl	->	ascii-torso.stl
+upperBodyAss_ORIGIN_collision.stl	->	ascii-torso_collision.stl
+THIGH_ASS_PART.STL		-> 	ascii-thigh.stl
+THIGH_ASS_PART_collision.STL	->	ascii-thigh_collision.stl
+
+
+
+

@@ -1,0 +1,16 @@
+<launch>
+
+
+  <param name="setpoint" type = "double" value = "0"/>
+
+  <node name="setpoint_node" pkg="robbie_stability" type="run_setpoint" respawn="false" output="screen"/>
+  <node name="stability_publisher" pkg="robbie_stability" type="robbie_stability_ex_4" respawn="false" output="screen"/>
+
+<!--   <node name="height_publisher" pkg="robbie_auto" type="height_publisher" respawn="false" output="screen"/>
+ -->
+
+  <node name="contact_publisher" pkg="robbie_stability" type="robbie_contact_ex" respawn="false" output="screen"/>
+
+</launch>
+
+

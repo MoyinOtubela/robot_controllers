@@ -1,0 +1,112 @@
+<launch>
+<!--   <node name="hip_balance_controller" pkg="pid" type="controller" output = "screen">
+    <param name="Kp" value="-3000" />
+    <param name="Ki" value="-0.1" />
+    <param name="Kd" value="-30" />
+    <param name="diagnostic_period" value="0.25" />
+    <param name="max_loop_frequency" value="100" />
+    <param name="min_loop_frequency" value="100" />
+    <param name="upper_limit" value="3000" />
+    <param name="lower_limit" value="-3000" />
+    <param name="windup_limit" value="3000" />
+    <param name="topic_from_plant" value="/robbie/hip_balance_controller/delta" />
+    <param name="topic_from_controller" value="/robbie/height/command"/>
+    <param name="setpoint_topic" value="/setpoint" /> 
+    <param name="node_name" value="hip_stability_controller"/>
+  </node>
+ -->
+
+ <!--    <node name="hip_stability_controller" pkg="pid" type="controller" output="screen">
+    <param name="Kp" value="-88" />
+    <param name="Ki" value="-0.1" />
+    <param name="Kd" value="-0.08" />
+    <param name="diagnostic_period" value="0.25" />
+    <param name="max_loop_frequency" value="1000" />
+    <param name="min_loop_frequency" value="1000" />
+    <param name="upper_limit" value="1" />
+    <param name="lower_limit" value="-1" />
+    <param name="windup_limit" value="1" />
+    <param name="topic_from_plant" value="/robbie/ssm_delta" />
+    <param name="topic_from_controller" value="/robbie/hip_position_controller/command"/>
+    <param name="setpoint_topic" value="/setpoint" /> 
+    <param name="node_name" value="hip_stability_controller"/>
+  </node>
+ -->
+ <!-- /robbie/hip_balance_controller/command -->
+<!--   <node name="height_controller" pkg="pid" type="controller" output = "screen" >
+    <param name="Kp" value="-55" />
+    <param name="Ki" value="-0.15625" />
+    <param name="Kd" value="-0.0390625" />
+    <param name="diagnostic_period" value="0.25" />
+    <param name="max_loop_frequency" value="1000" />
+    <param name="min_loop_frequency" value="1000" />
+    <param name="upper_limit" value="0.8" />
+    <param name="lower_limit" value="-0.8" />
+    <param name="angular_error" value="true" />
+    <param name="windup_limit" value="0.8" />
+    <param name="topic_from_plant" value="/robbie/height/delta" />
+    <param name="topic_from_controller" value="/robbie/hip_position_controller/command"/>
+    <param name="setpoint_topic" value="/setpoint" /> 
+    <param name="node_name" value="height_controller"/>
+  </node>
+
+ -->
+  <node name="height_controller" pkg="pid" type="controller" output = "screen" >
+    <param name="Kp" value="-3000" />
+    <param name="Ki" value="-0.1" />
+    <param name="Kd" value="-30" />
+    <param name="diagnostic_period" value="0.25" />
+    <param name="max_loop_frequency" value="1000" />
+    <param name="min_loop_frequency" value="1000" />
+    <param name="upper_limit" value="3000" />
+    <param name="lower_limit" value="-3000" />
+    <param name="windup_limit" value="0.1" />
+    <param name="topic_from_plant" value="/robbie/height/delta" />
+    <param name="topic_from_controller" value="/robbie/hip_balance_controller/command"/>
+    <param name="setpoint_topic" value="/setpoint" /> 
+    <param name="node_name" value="height_controller"/>
+  </node>
+
+  <!-- changing setpoint, for some reason, changes the height of the robot -->
+
+
+
+</launch>
+
+
+    <!-- -70 -0.1 -0.08 -->
+    <!-- <param name="Ki" value="0.4/2" /> -->
+
+    <!-- <param name="Ki" value="0.4/2" /> -->
+
+
+<!--     <param name="Kp" value="-1*0.8*50" />
+
+    <param name="Ki" value="-1*0" />
+
+    <param name="Kd" value="-1*0.4/8" />
+ -->    
+
+
+<!--    <node name = "stopper" pkg="controller_manager"
+         type="spawner"
+         args="stop /hip_position_controller" /> -->
+
+
+         <!--     <param name="Kp" value="0.6" />
+    <param name="Ki" value="0.1" />
+    <param name="Kd" value="0.1" />
+ -->   <!-- 
+    <param name="Kp" value="0.33*4" />
+    <param name="Ki" value="0.2/2" />
+    <param name="Kd" value="0.2/3" /> -->
+
+<!--   <node name="pid_tuner" pkg="pid" type="autotune" respawn="false" output="screen">
+    <param name="numLoops" value= "1"/>
+    <param name="Kp_min" value= "0"/>
+    <param name="Kp_max" value= "1"/>
+    <param name="Kp_step" value= "0.5"/>
+  </node>
+ -->
+    <!-- <remap from="nameSpc" to= "ssm_controller"/> -->
+

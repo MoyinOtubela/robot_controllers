@@ -1,0 +1,27 @@
+<launch>
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find robbie_control)/config/robbie_objective_controllers.yaml" command="load"/>
+  <!-- load the controllers -->
+<!--   <node name="controller_spawner2"
+    pkg="controller_manager"
+    type="spawner" respawn="false"
+    output="screen" ns="robbie"
+    args="height_controller
+    "
+  />
+ -->  
+ <node name="controller_spawner2"
+    pkg="controller_manager"
+    type="spawner" respawn="false"
+    output="screen" ns="robbie"
+    args="height_controller hip_balance_controller
+    "
+  />
+      <!-- special_hip_balance_controller  -->
+
+<!-- height_controller -->
+          <!-- hip_balance_controller -->
+          <!-- special_hip_balance_controller -->
+
+</launch>
