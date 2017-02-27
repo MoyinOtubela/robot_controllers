@@ -41,9 +41,24 @@ classdef LookupTableGenerator < aerobot
 	end
 
     methods(Access = public)
+
+    	function obj = LookupTableGenerator(obj)
+			% positive stab = contract
+            obj.x0 = [0 0 0.8 -0.2 0 0 0 0];
+			obj.lb = [-pi/4 0 -1 0 -1 -1 0 0];
+			obj.ub = [0 1 0.8 0 0.383972435 0.383972435 0 0];
+			configure(obj, obj.x0);
+			animate(obj);
+    	end
+
+    	function obj = set_head_mass(obj, mass)
+    		obj.mass(15) = mass;
+    	end
+
     	function [ssm] = findSSM(obj)
     		
     	end
+
     	function [ssm_delta] = findSSMDelta(obj)
     		x_o = (obj.joint_locations(1, 1)+(obj.joint_locations(4, 1)))/2;
     		y_o = (obj.joint_locations(1, 2)+(obj.joint_locations(4, 2)))/2;
@@ -55,34 +70,20 @@ classdef LookupTableGenerator < aerobot
     	end
 
 
-    	function obj = LookupTableGenerator(obj)
-			% positive stab = contract
-            obj.x0 = [0 0 0.8 -0.2 0 0 0 0];
-			A = [];
-			b = [];
-			Aeq = [];
-			beq= [];
-			configure(obj, obj.x0);
-			obj.lb = [-pi/4 0 -1 0 -1 -1 -0.2 -0.2];
-			obj.ub = [0 1 0.8 0.2 0.383972435 0.383972435 0 0];
-			animate(obj);
-    	end
 
     	function theta = run(obj, problem, x0, h)
 			obj.desired_height = h;
 			problem.x0 = x0;
 			theta = fmincon(problem);
+
             % obj.refresh;
             
     	end
 
     	function result = solve(obj, joints)
     		obj.configure(joints);
-
 			result = obj.findSSMDelta;
-			% if isreal(obj.joint_locations(:,:))
 			% obj.refresh();  %uncomment for live update
-			% end
 			% fprintf('OBJ = %g\n',result)
     	end
     	function output = testSolve(obj, x, y)

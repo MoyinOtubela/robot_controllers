@@ -9,6 +9,7 @@ classdef aerobot< config_robot
         % LIMB MASSES (kg)
         joint_locations;
         origin = [0 0 0 1]';
+
         height;
     end
 
@@ -144,6 +145,10 @@ classdef aerobot< config_robot
             obj.updateJoints;
         end
 
+        function obj = relative_rotation(obj, A1, A2)
+
+        end
+
         function obj = updateJoints(obj)
         % FIND JOINT CO-0RDIobjNATES 
             % lower body
@@ -161,6 +166,9 @@ classdef aerobot< config_robot
             elbow_left_link = arm_left_link*obj.A15;
             elbow_right_link = arm_right_link*obj.A16;
 
+            % obj.hip_monitor = acos(torso_link(3, 3));
+            % sin_b = asin(torso_link(2, 3));
+            % disp(torso_link)
             shank_left_wheel = shank_link*obj.A17;
             shank_right_wheel = shank_link*obj.A18;
 
@@ -170,6 +178,12 @@ classdef aerobot< config_robot
 
             lhm_left_wheel = lhm_torso_link*obj.A22;
             lhm_right_wheel = lhm_torso_link*obj.A23;
+
+
+            z = camera_joint(3,4) - torso_link(3,4);
+            y = camera_joint(2,4) - torso_link(2,4);
+
+            obj.hip_monitor = pi - atan2(z,y);
 
             % com_shank_footprint = shank_footprint*obj.DH(0.163037,0,0.159341,0)*obj.origin;
             com_shank_footprint = shank_link*obj.A2*obj.DH(0,0,0.1735,0)*obj.origin;
@@ -256,7 +270,7 @@ classdef aerobot< config_robot
             obj.h15 = plotCircle3D([obj.joint_locations(17, 1), obj.joint_locations(17, 2),obj.joint_locations(18, 3)],[1 0 0], obj.lhm_wheel_rad,'g');
             obj.h16 = plotCircle3D([obj.joint_locations(18, 1), obj.joint_locations(18, 2),obj.joint_locations(18, 3)],[1 0 0], obj.lhm_wheel_rad,'g');
 
-            obj.h17 = plot3(obj.com.location(1), obj.com.location(2), obj.com.location(3),'.k', 'MarkerSize', 45);
+            obj.h17 = plot3(obj.com.location(1), obj.com.location(2), obj.com.location(3),'.k', 'MarkerSize', 60);
             
             obj.h18 = plot3(obj.com.location(1), obj.com.location(2), 0,'xk', 'MarkerSize', 20);
 
