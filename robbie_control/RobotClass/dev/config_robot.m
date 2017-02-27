@@ -18,7 +18,8 @@ classdef config_robot < handle
 		h15;
 		h16;
 		h17;
-		h18;
+        h18;
+        h19;
 		h_com;
 
 
@@ -110,6 +111,9 @@ classdef config_robot < handle
         left_lhm_wheel_mass = 0.2;
         right_lhm_wheel_mass = 0.2;
 
+        % camera_mass = 1e-6;
+        camera_mass = 100;
+
         mass = [];
         total_mass;
 
@@ -180,6 +184,7 @@ classdef config_robot < handle
                 obj.shank_right_wheel_mass;
                 obj.left_lhm_wheel_mass;
                 obj.right_lhm_wheel_mass;
+                obj.camera_mass;
                 ];
 
             obj.total_mass = sum(obj.mass);
@@ -298,7 +303,7 @@ classdef config_robot < handle
             set(obj.h17,'ZData', obj.com.location(3));
             set(obj.h18,'XData', obj.com.location(1));
             set(obj.h18,'YData', obj.com.location(2));
-            for i = 1:1:14
+            for i = 1:1:15
 	            set(obj.h_com(i), 'XData', obj.com_locations(i,1));
 	            set(obj.h_com(i), 'YData', obj.com_locations(i,2));
 	            set(obj.h_com(i), 'ZData', obj.com_locations(i,3));

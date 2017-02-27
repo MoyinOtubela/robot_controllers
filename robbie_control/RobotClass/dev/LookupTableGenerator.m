@@ -26,19 +26,16 @@ classdef LookupTableGenerator < aerobot
     		x_m = 0;        
     		y_m = 0;
     		z_m = 0; 
-    		x = 0;
-    		y = 0;
-    		z=0;
     		len = size(obj.com_locations);
+            % disp(len);
     		for i = 1:len(1)
     			x_m = x_m + obj.com_locations(i,1)*obj.mass(i);
     			y_m = y_m + obj.com_locations(i,2)*obj.mass(i);
     			z_m = z_m + obj.com_locations(i,3)*obj.mass(i);
     		end
-    		x = x_m/obj.total_mass;
-    		y = y_m/obj.total_mass;
-    		z = z_m/obj.total_mass;
-    		obj.com.location = [x;y;z];
+    		obj.com.location = [x_m/obj.total_mass;
+                                y_m/obj.total_mass;
+                                z_m/obj.total_mass];
     	end
 
 	end
@@ -59,25 +56,15 @@ classdef LookupTableGenerator < aerobot
 
 
     	function obj = LookupTableGenerator(obj)
-			% obj.x0 = [-0.2 0 0 0 -0.1 0 0 0 0];
 			% positive stab = contract
-
-% 			obj.x0 = [0 0 0 0 0 0 0 0];
-%             obj.x0 = [0 0 0.8 -0.2 0 0 0 0];
-%             obj.x0 = [0 0 0.8 -0.1 0 0 0 0];
-%             obj.x0 = [0 0 0.8 0 0 0 -0.2 -0.2];
             obj.x0 = [0 0 0.8 -0.2 0 0 0 0];
 			A = [];
 			b = [];
 			Aeq = [];
 			beq= [];
 			configure(obj, obj.x0);
-			% obj.lb = [0 -0.7 -0.7 -0.2 -pi -pi -0.2 -0.2];
-			% obj.ub = [0.2 0.7 0.8 0 pi pi 0 0];
 			obj.lb = [-pi/4 0 -1 0 -1 -1 -0.2 -0.2];
 			obj.ub = [0 1 0.8 0.2 0.383972435 0.383972435 0 0];
-			% obj.lb = [0 0 -0.7 -0.2 0 0 -1 -1];
-			% obj.ub = [1 1 0.7 0 0 0 1 1];
 			animate(obj);
     	end
 
@@ -85,6 +72,7 @@ classdef LookupTableGenerator < aerobot
 			obj.desired_height = h;
 			problem.x0 = x0;
 			theta = fmincon(problem);
+            % obj.refresh;
             
     	end
 
@@ -93,11 +81,10 @@ classdef LookupTableGenerator < aerobot
 
 			result = obj.findSSMDelta;
 			% if isreal(obj.joint_locations(:,:))
-% 			obj.refresh();  %uncomment for live update
+			% obj.refresh();  %uncomment for live update
 			% end
 			% fprintf('OBJ = %g\n',result)
     	end
-
     	function output = testSolve(obj, x, y)
     		output = cos(x + y);
     	end

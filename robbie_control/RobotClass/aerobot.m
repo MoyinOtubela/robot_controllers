@@ -27,7 +27,7 @@ classdef aerobot< config_robot
             xlabel('X-axis');ylabel('Y-axis');zlabel('Z-axis');
             hold on;
             grid on
-            az = 0;
+            az = 90;
             el = 0;
             view(az, el);
         end
@@ -217,6 +217,7 @@ classdef aerobot< config_robot
                                  obj.joint_locations(15,:);
                                  obj.joint_locations(17,:);
                                  obj.joint_locations(18,:);
+                                (camera_joint*obj.origin)';
                                 ];
             
             obj.height = camera_joint(3, 4);
@@ -262,7 +263,7 @@ classdef aerobot< config_robot
             % hold off;
 
             obj.h_com = [];
-            for i = 1:14
+            for i = 1:15
                 obj.h_com = [obj.h_com; plot3(obj.com_locations(i, 1), obj.com_locations(i, 2), obj.com_locations(i, 3), '.b', 'MarkerSize', 39)];
             end
 
