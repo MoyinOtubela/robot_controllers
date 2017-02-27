@@ -6,16 +6,16 @@ function [positions] = build_lookuptable(x0, resolution)
 	positions = zeros(resolution, 9);
 
 	obj = LookupTableGenerator();
-	obj.set_head_mass(1e-6);
-	% obj.set_head_mass(10);
+	% obj.set_head_mass(1e-6);
+	obj.set_head_mass(10);
 	obj.configure(x0);
 	obj.refresh();
 	obj.K1 = 1000;
 	obj.K2 = 1000;
 	obj.K3 = 1;
-	obj.K1 = 1;
-	obj.K2 = 1;
-	obj.K3 = 100;
+	% obj.K1 = 1;
+	% obj.K2 = 1;
+	% obj.K3 = 100;
 
 	problem.options = optimoptions('fmincon');
 	% problem.options = optimoptions('fmincon','Display','iter');
@@ -25,13 +25,14 @@ function [positions] = build_lookuptable(x0, resolution)
 	problem.ub = obj.ub;
 	problem.solver = 'fmincon';
 
-	z = linspace(0.38, 0.5878, resolution);
-	% % z = linspace(0.5, 0.8, resolution);
+	% z = linspace(0.38, 0.5878, resolution);
+	z = linspace(0.5, 1, resolution);
 	% z = linspace(0.38, 0.8, resolution);
 	% z = linspace(0.38, 1, resolution);
 
 	index = 1;
-	theta = obj.run(problem, x0, 0.36);
+	theta = obj.run(problem, x0, 0.45);
+	% theta = obj.run(problem, x0, 0.45);
 	for i = z
 	  theta = obj.run(problem, theta, i);
 	  positions(index, 1) = obj.height;
@@ -39,7 +40,6 @@ function [positions] = build_lookuptable(x0, resolution)
 	  fprintf('Table is %g percent complete\n', (index/resolution)*100)
 	  index = index + 1;
 	  obj.refresh;
-	  % theta(9) = obj.hip_monitor;
 	  fprintf('hip angle %f\n', obj.hip_monitor*180/pi);
 	end
 	fprintf('Table is complete', (index/resolution)*100)

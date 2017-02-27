@@ -5,6 +5,7 @@ import actionlib
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryActionGoal, FollowJointTrajectoryGoal, JointTrajectoryControllerState
 import scipy.io
 from math import sqrt
+import rosbag
 
 class CostList(object):
 	def __init__(self, index, cost):
@@ -32,8 +33,9 @@ class Robbie:
 		self.msg = JointTrajectory()
 		self.msg.header.frame_id = "/odom"
 		self.joint_names = [ "stab_joint", "knee_joint", "hip_joint", "lhm_torso_joint", "shoulder_left_joint", "shoulder_right_joint", "elbow_left_joint", "elbow_right_joint"]
-		self.workspace = scipy.io.loadmat('/home/moyin/dev/catkin_ws/src/gazebo_sim/robbie_control/RobotClass/dev3/100_height_waypoints')
+		self.workspace = scipy.io.loadmat('/home/moyin/dev/catkin_ws/src/gazebo_sim/robbie_control/RobotClass/dev3/30_height_waypoints')
 		self.waypoints = self.workspace['waypoints']
+		self.bag_name = 'sample_bag'
 		self.x0 = []
 
 	def __del__(self):
@@ -75,6 +77,10 @@ class Robbie:
 		return trajectory[::-1]
 
 
+	def write_to_rosbag(self, msg):
+		self.bag.write('/robbie/whole_body_controller/state', msg)
+
+
 
 	def update_pos(self, msg):
 		self.x0 = msg.actual.positions
@@ -96,15 +102,28 @@ class Robbie:
 			 time_from_start = rospy.Duration(i*time)))
 			i+=1
 		goal.trajectory.header.stamp = rospy.Time.now()
+		
+		self.bag = rosbag.Bag(self.bag_name+'_'+str(desired_height)+'.bag','w')
+
+		self.sub = rospy.Subscriber("/robbie/whole_body_controller/state", JointTrajectoryControllerState, self.write_to_rosbag)
+
 		self.act.send_goal_and_wait(goal)
+		self.sub.unregister()
+		self.bag.close()
+
+
 
 
 def main():
 	rospy.init_node('stand_controller')
 	rospy.loginfo("standing trajectory initiated")
 	robot = Robbie()
-	robot.adjust_height(desired_height = 0.8)
+	robot.adjust_height(desired_height = 1)
+
 
 if __name__ == '__main__':
 	main()
+	bag = rosbag.Bag('sample_bag_1.bag','r')
+	for topic, msg, t in bag.read_messages(topics=['/robbie/whole_body_controller/state']):
+		print msg
 
