@@ -27,18 +27,6 @@ robbie:
     knee_joint: {p: 36000, i: 6.5, d: 1.625}
 
 
-  shoulder_swing_controller:
-   type: effort_controllers/JointTrajectoryController
-   joints:
-    - shoulder_left_joint
-    - shoulder_right_joint
-   gains:
-    shoulder_left_joint: {p: 30000, i: 0.1, d: 10.0}
-    shoulder_right_joint: {p: 30000, i: 0.1, d: 10.0}
-   state_publish_rate: 50
-   action_monitor_rate: 30
-   stop_trajectory_duration: 0
-
   stand_controller:
    type: effort_controllers/JointTrajectoryController
    joints:
@@ -93,72 +81,8 @@ robbie:
    action_monitor_rate: 30
    stop_trajectory_duration: 0
 
-  stand_controller_no_hip:
-   type: effort_controllers/JointTrajectoryController
-   joints:
-    - shoulder_left_joint
-    - shoulder_right_joint
-    - lhm_torso_joint
-    - stab_joint
-    - knee_joint
-   gains:
-    shoulder_left_joint: {p: 100.0, i: 0.1, d: 10.0}
-    shoulder_right_joint: {p: 100.0, i: 0.1, d: 10.0}
-    lhm_torso_joint: {p: 1000, i: 0.1, d: 10.0}
-    stab_joint: {p: 1000, i: 0.1, d: 10.0}
-    knee_joint: {p: 1000, i: 0.1, d: 10.0}
-   state_publish_rate: 50
-   action_monitor_rate: 30
-   stop_trajectory_duration: 0
-
-  stand_controller_no_hip:
-   type: effort_controllers/JointTrajectoryController
-   joints:
-    - shoulder_left_joint
-    - shoulder_right_joint
-    - lhm_torso_joint
-    - stab_joint
-    - knee_joint
-   gains:
-    shoulder_left_joint: {p: 100.0, i: 0.1, d: 1}
-    shoulder_right_joint: {p: 100.0, i: 0.1, d: 1}
-    lhm_torso_joint: {p: 2000, i: 0.1, d: 1}
-    stab_joint: {p: 2000, i: 0.1, d: 1}
-    knee_joint: {p: 2000, i: 0.1, d: 1}
-   state_publish_rate: 50
-   action_monitor_rate: 30
-   stop_trajectory_duration: 0
 
 
-  stand_controller_no_hip_knee:
-   type: effort_controllers/JointTrajectoryController
-   joints:
-    - shoulder_left_joint
-    - shoulder_right_joint
-    - lhm_torso_joint
-    - stab_joint
-   gains:
-    shoulder_left_joint: {p: 100.0, i: 0.1, d: 10.0}
-    shoulder_right_joint: {p: 100.0, i: 0.1, d: 10.0}
-    lhm_torso_joint: {p: 3000, i: 0.1, d: 10.0}
-    stab_joint: {p: 3000, i: 0.1, d: 10.0}
-   state_publish_rate: 50
-   action_monitor_rate: 30
-   stop_trajectory_duration: 0
-
-  lhm_position_controller:
-    type: effort_controllers/JointPositionController
-    joint: lhm_torso_joint
-    pid: {p: 4000.0, i: 0.1, d: 50.0}
-
-  right_arm_position_controller:
-    type: effort_controllers/JointPositionController
-    joint: elbow_right_joint
-    pid: {p: 100.0, i: 0.1, d: 10.0}
-  left_arm_position_controller:
-    type: effort_controllers/JointPositionController
-    joint: elbow_left_joint
-    pid: {p: 100.0, i: 0.1, d: 10.0}
 
 
   leftWheel_effort_controller:

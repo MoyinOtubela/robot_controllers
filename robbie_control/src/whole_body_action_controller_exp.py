@@ -3,9 +3,14 @@ from trajectory_msgs.msg import JointTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint 
 import actionlib
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryActionGoal, FollowJointTrajectoryGoal, JointTrajectoryControllerState
+# from tf2_msgs.msg import TFMessage
+from tf.msg import tfMessage
+from geometry_msgs.msg import TransformStamped
 import scipy.io
 from math import sqrt
 import rosbag
+import subprocess
+
 
 class CostList(object):
 	def __init__(self, index, cost):
@@ -32,11 +37,14 @@ class Robbie:
 		rospy.loginfo('Loaded')
 		self.msg = JointTrajectory()
 		self.msg.header.frame_id = "/odom"
-		self.joint_names = [ "stab_joint", "knee_joint", "hip_joint", "lhm_torso_joint", "shoulder_left_joint", "shoulder_right_joint", "elbow_left_joint", "elbow_right_joint"]
-		self.workspace = scipy.io.loadmat('/home/moyin/dev/catkin_ws/src/gazebo_sim/robbie_control/RobotClass/dev3/30_height_waypoints')
+		self.joint_names = ["stab_joint", "knee_joint", "hip_joint", "lhm_torso_joint", "shoulder_left_joint", "shoulder_right_joint", "elbow_left_joint", "elbow_right_joint"]
+		self.workspace = scipy.io.loadmat('/home/moyin/dev/catkin_ws/src/gazebo_sim/robbie_control/RobotClass/dev3/100_height_waypoints')
 		self.waypoints = self.workspace['waypoints']
 		self.bag_name = 'sample_bag'
 		self.x0 = []
+		# self.bag = rosbag.Bag('sample_bag_1.bag','w')
+		# self.tfbag = rosbag.Bag('aerobot_tf_1.bag','w')
+
 
 	def __del__(self):
 		self.act.cancel_all_goals()
@@ -77,9 +85,9 @@ class Robbie:
 		return trajectory[::-1]
 
 
-	def write_to_rosbag(self, msg):
+	def write_pose_to_rosbag(self, msg):
 		self.bag.write('/robbie/whole_body_controller/state', msg)
-
+		rospy.Rate(100)
 
 
 	def update_pos(self, msg):
@@ -101,14 +109,27 @@ class Robbie:
 			 positions = pos[1:9],
 			 time_from_start = rospy.Duration(i*time)))
 			i+=1
+
 		goal.trajectory.header.stamp = rospy.Time.now()
 		
-		self.bag = rosbag.Bag(self.bag_name+'_'+str(desired_height)+'.bag','w')
+		self.bag = rosbag.Bag('sample_bag_'+str(desired_height)+'.bag','w')
+		
+		tf_bag_command = 'rosbag record -O aerobot_tf_100w_'+str(desired_height)+' /tf /robbie/whole_body_controller/state'
 
-		self.sub = rospy.Subscriber("/robbie/whole_body_controller/state", JointTrajectoryControllerState, self.write_to_rosbag)
+		tfbag = subprocess.Popen(tf_bag_command, stdin=subprocess.PIPE, shell=True,
+		 cwd='/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/src')
+		
+		self.sub_pose = rospy.Subscriber('/robbie/whole_body_controller/state', JointTrajectoryControllerState, self.write_pose_to_rosbag)
+		# rospy.sleep(5)
 
 		self.act.send_goal_and_wait(goal)
-		self.sub.unregister()
+		self.sub_pose.unregister()
+		rospy.sleep(10)
+
+		tfbag.send_signal(subprocess.signal.SIGINT)
+		tf_reindex_command = 'rosbag reindex aerobot_tf_100w_'+str(desired_height)+'.bag.active'
+		tfbag = subprocess.Popen(tf_reindex_command, stdin=subprocess.PIPE, shell=True,
+		 cwd='/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/src')
 		self.bag.close()
 
 
@@ -123,7 +144,10 @@ def main():
 
 if __name__ == '__main__':
 	main()
-	bag = rosbag.Bag('sample_bag_1.bag','r')
-	for topic, msg, t in bag.read_messages(topics=['/robbie/whole_body_controller/state']):
-		print msg
+	# bag = rosbag.Bag('sample_bag_1.bag','r')
+	# for topic, msg, t in bag.read_messages(topics=['/robbie/whole_body_controller/state']):
+	# 	print msg
+	# bag = rosbag.Bag('aerobot_tf_1.bag','r')
+	# for topic, msg, t in bag.read_messages(topics=['/tf']):
+	# 	print msg
 

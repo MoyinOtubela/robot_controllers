@@ -2,7 +2,8 @@
 
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(find robbie_control)/config/robbie_trajectory_control.yaml" command="load"/>
-
+<!--   <rosparam file="$(find robbie_control)/config/robbie_control.yaml" command="load"/>
+ -->
 
   <node name="controller_spawner"
     pkg="controller_manager"
@@ -10,6 +11,10 @@
     output="screen" ns="robbie"
     args="joint_state_controller
           whole_body_controller
+          rightWheel_effort_controller
+          leftWheel_effort_controller
+          lhm_left_wheel_effort_controller
+          lhm_right_wheel_effort_controller
           "
   />
           <!-- stand_controller -->
@@ -23,7 +28,3 @@
 
 
 </launch>
-<!--           shoulder_swing_controller
-          right_arm_position_controller
-          left_arm_position_controller
- -->
