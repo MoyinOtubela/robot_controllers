@@ -204,6 +204,10 @@ classdef config_robot < handle
             obj.right_arm_ext = joints(8);
             % joints
 
+            % joints(9) = obj.hip_monitor;
+
+            % disp(joints(9))
+
 			k = (pi/2 -  (1.22173048 + joints(1)));
 
 			h = 0.24*sin(k);
