@@ -1,1 +1,1 @@
-addpath('/home/moyin/dev/catkin_ws/src/gazebo_sim/robbie_control/RobotClass/dev3')
+addpath('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass')

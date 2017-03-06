@@ -18,7 +18,8 @@ classdef config_robot < handle
 		h15;
 		h16;
 		h17;
-		h18;
+        h18;
+        h19;
 		h_com;
 
 
@@ -56,7 +57,7 @@ classdef config_robot < handle
 		stab_wheel_rad = 0.0762;
 		lhm_wheel_rad = 0.102175;
 
-
+        hip_monitor = 0;
 
 		% LIMB LENGTHS/WIDTHS (m)
 		% shank
@@ -110,6 +111,8 @@ classdef config_robot < handle
         left_lhm_wheel_mass = 0.2;
         right_lhm_wheel_mass = 0.2;
 
+        camera_mass = 1e-6;
+
         mass = [];
         total_mass;
 
@@ -119,6 +122,7 @@ classdef config_robot < handle
 	methods(Abstract, Hidden = true)
 		updateJoints(obj);
 		update(obj);
+        relative_rotation(obj);
 	end
 
 	% methods(Abstract, Access = protected)
@@ -180,6 +184,7 @@ classdef config_robot < handle
                 obj.shank_right_wheel_mass;
                 obj.left_lhm_wheel_mass;
                 obj.right_lhm_wheel_mass;
+                obj.camera_mass;
                 ];
 
             obj.total_mass = sum(obj.mass);
@@ -197,15 +202,13 @@ classdef config_robot < handle
 			obj.r_shoulder_angle = joints(6);
             obj.left_arm_ext = joints(7);
             obj.right_arm_ext = joints(8);
+            % joints
+
 			k = (pi/2 -  (1.22173048 + joints(1)));
 
 			h = 0.24*sin(k);
             obj.stab_angle =  pi/2 - (1.22173048 + joints(1)) + asin( (h+(obj.drive_wheel_rad-obj.stab_wheel_rad))/(0.25)) - 0.698131701;
-            % obj.stab_angle =  pi/2 - (1.2217 + joints(1)) + asin( (h+(obj.drive_wheel_rad-obj.stab_wheel_rad)-0.1)/(obj.stab_len)) - 0.6981;
-            % obj.stab_angle =  pi/2 - (1.2217 + joints(1)) + asin( (h - 0.028)/(obj.stab_len)) - 0.6981;
-
 			obj.update;
-
 
 		end	
 
@@ -219,16 +222,6 @@ classdef config_robot < handle
 		end
 
 		function obj = refresh(obj)
-            % if imag(obj.joint_locations(:,1)) ==true
-            %     return
-            % end
-            % if imag(obj.joint_locations(:,2)) == true
-            %     disp('BOOM')
-            %     return
-            % end
-            % if imag(obj.joint_locations(:,3)) ==true
-            %     return
-            % end
 
             set(obj.h1, 'XData', obj.joint_locations(2:18,1));
             set(obj.h1, 'YData',obj.joint_locations(2:18,2));
@@ -298,7 +291,7 @@ classdef config_robot < handle
             set(obj.h17,'ZData', obj.com.location(3));
             set(obj.h18,'XData', obj.com.location(1));
             set(obj.h18,'YData', obj.com.location(2));
-            for i = 1:1:14
+            for i = 1:1:15
 	            set(obj.h_com(i), 'XData', obj.com_locations(i,1));
 	            set(obj.h_com(i), 'YData', obj.com_locations(i,2));
 	            set(obj.h_com(i), 'ZData', obj.com_locations(i,3));
