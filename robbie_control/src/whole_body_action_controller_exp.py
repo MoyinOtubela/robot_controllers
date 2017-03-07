@@ -38,7 +38,7 @@ class Robbie:
 		self.msg = JointTrajectory()
 		self.msg.header.frame_id = "/odom"
 		self.joint_names = ["stab_joint", "knee_joint", "hip_joint", "lhm_torso_joint", "shoulder_left_joint", "shoulder_right_joint", "elbow_left_joint", "elbow_right_joint"]
-		self.workspace = scipy.io.loadmat('/home/moyin/dev/catkin_ws/src/gazebo_sim/robbie_control/RobotClass/dev3/100_height_waypoints')
+		self.workspace = scipy.io.loadmat('/home/moyin/dev/catkin_ws/src/gazebo_sim/robbie_control/RobotClass/dev/100_height_waypoints')
 		self.waypoints = self.workspace['waypoints']
 		self.bag_name = 'sample_bag'
 		self.x0 = []

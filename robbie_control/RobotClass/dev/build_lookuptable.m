@@ -13,12 +13,12 @@ function [positions] = build_lookuptable(x0, resolution)
 	% obj.K1 = 1;
 	% obj.K2 = 1000;
 	% obj.K3 = 1;
-	obj.K1 = 0;
+	obj.K1 = 1;
 	obj.K2 = 5;
-	obj.K3 = 1000;
+	obj.K3 = 10;
 
 	% problem.options = optimoptions('fmincon','StepTolerance',1e-100);
-	problem.options = optimoptions('fmincon');
+	problem.options = optimoptions('fmincon','FunctionTolerance',1e-100);
 	% problem.options = optimoptions('fmincon','Display','iter');
 	problem.options.MaxFunctionEvaluations = 30000;
 	problem.objective = @obj.solve;

@@ -17,25 +17,39 @@ classdef LookupTableGenerator < aerobot
          K2=1;
          K3=1;
 
+         hip_limit = pi/2;
 
     end
 
     methods(Access = protected, Hidden = true)
 
     	function [x, y, z] = FindCOMLocation(obj)
-    		x_m = 0;        
-    		y_m = 0;
-    		z_m = 0; 
-    		len = size(obj.com_locations);
+            x_m = (obj.com_locations(:, 1).*obj.mass);
+            y_m = (obj.com_locations(:, 2).*obj.mass);
+            z_m = (obj.com_locations(:, 3).*obj.mass);
+            
+            obj.com.location = [sum(x_m)/obj.total_mass;
+                                sum(y_m)/obj.total_mass;
+                                sum(z_m)/obj.total_mass];
+    		% x_m = 0;        
+    		% y_m = 0;
+    		% z_m = 0; 
+    		% len = size(obj.com_locations);
             % disp(len);
-    		for i = 1:len(1)
-    			x_m = x_m + obj.com_locations(i,1)*obj.mass(i);
-    			y_m = y_m + obj.com_locations(i,2)*obj.mass(i);
-    			z_m = z_m + obj.com_locations(i,3)*obj.mass(i);
-    		end
-    		obj.com.location = [x_m/obj.total_mass;
-                                y_m/obj.total_mass;
-                                z_m/obj.total_mass];
+    		% for i = 1:len(1)
+    		% 	x_m = x_m + obj.com_locations(i,1)*obj.mass(i);
+    		% 	y_m = y_m + obj.com_locations(i,2)*obj.mass(i);
+    		% 	z_m = z_m + obj.com_locations(i,3)*obj.mass(i);
+    		% end
+
+            % x_m = sum(x_m);
+            % y_m = sum(y_m);
+            % z_m = sum(z_m);
+
+
+    		% obj.com.location = [x_m/obj.total_mass;
+      %                           y_m/obj.total_mass;
+      %                           z_m/obj.total_mass];
     	end
 
 	end
@@ -63,7 +77,7 @@ classdef LookupTableGenerator < aerobot
     		x_o = (obj.joint_locations(1, 1)+(obj.joint_locations(4, 1)))/2;
     		y_o = (obj.joint_locations(1, 2)+(obj.joint_locations(4, 2)))/2;
     		% ssm_delta = sqrt((obj.com.location(1) - x_o)^2 + (obj.com.location(2) - y_o)^2 + (obj.com.location(3) - obj.desired_height)^2 );
-            ssm_delta = sqrt(obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + (obj.hip_monitor - pi/2.1)^2 );
+            ssm_delta = sqrt(obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + (obj.hip_monitor - obj.hip_limit)^2 );
             % ssm_delta = sqrt(obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2);
             % ssm_delta = ssm_delta + abs(obj.hip_monitor - pi/2.5);
 

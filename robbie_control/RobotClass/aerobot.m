@@ -145,12 +145,8 @@ classdef aerobot< config_robot
             obj.updateJoints;
         end
 
-        function obj = relative_rotation(obj, A1, A2)
-
-        end
-
         function obj = updateJoints(obj)
-        % FIND JOINT CO-0RDIobjNATES 
+        % FIND JOINT CO0RDINATES 
             % lower body
             shank_footprint = obj.A0;
             shank_link = obj.A0*obj.A1;
