@@ -11,8 +11,6 @@
     output="screen" ns="robbie"
     args="joint_state_controller
           whole_body_controller
-          rightWheel_effort_controller
-          leftWheel_effort_controller
           lhm_left_wheel_effort_controller
           lhm_right_wheel_effort_controller
           "
@@ -20,7 +18,9 @@
           <!-- stand_controller -->
           <!-- stand_controller_no_hip -->
           <!-- stand_controller_no_hip_knee -->
-
+<!--           rightWheel_effort_controller
+          leftWheel_effort_controller
+ -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
     <param name="robot_description" command="$(find xacro)/xacro.py '$(find robbie_description)/urdf/robbie.xacro'" />
     <remap from="/joint_states" to="/robbie/joint_states" />

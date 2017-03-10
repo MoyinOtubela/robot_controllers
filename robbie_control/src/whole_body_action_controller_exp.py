@@ -38,10 +38,15 @@ class Robbie:
 		self.msg = JointTrajectory()
 		self.msg.header.frame_id = "/odom"
 		self.joint_names = ["stab_joint", "knee_joint", "hip_joint", "lhm_torso_joint", "shoulder_left_joint", "shoulder_right_joint", "elbow_left_joint", "elbow_right_joint"]
-		self.workspace = scipy.io.loadmat('/home/moyin/dev/catkin_ws/src/gazebo_sim/robbie_control/RobotClass/dev/100_height_waypoints')
-		self.waypoints = self.workspace['waypoints']
+		directory = '/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/modeA/trajectories/modeC/'
+		self.workspaceT = scipy.io.loadmat(directory+'/40_waypoints')
+		self.waypointsT = self.workspaceT['waypoints']
+		# self.workspace = scipy.io.loadmat('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/100_height_waypoints_2')
+		# self.workspace = scipy.io.loadmat('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/100_height_waypoints_2')
+
 		self.bag_name = 'sample_bag'
 		self.x0 = []
+		self.x0T = []
 		# self.bag = rosbag.Bag('sample_bag_1.bag','w')
 		# self.tfbag = rosbag.Bag('aerobot_tf_1.bag','w')
 
@@ -56,7 +61,11 @@ class Robbie:
 			d += abs(current_state[i-1] - pos[i])
 		return d
 
-	def extract_trajectory(self, current_state, goal):
+
+
+
+
+	def extract_height_trajectory(self, current_state, goal):
 		index = 0
 		height_list = []
 		current_state_list = []
@@ -95,6 +104,21 @@ class Robbie:
 		print self.x0
 		self.sub.unregister()
 
+	def update_pos_T(self, msg):
+		self.x0T = msg.actual.positions
+		print self.x0T
+		self.subT.unregister()
+
+	def start(self, positions = [0, 0, 0, 0, 0, 0, 0, 0], time = 5):
+		goal = FollowJointTrajectoryGoal()
+		goal.trajectory.joint_names = self.joint_names
+		goal.trajectory.points.append(JointTrajectoryPoint(
+		 positions = positions,
+		 time_from_start = rospy.Duration(time)))
+		goal.trajectory.header.stamp = rospy.Time.now()
+		self.act.send_goal_and_wait(goal)
+
+
 	def adjust_height(self, desired_height, time = 0.5):
 		self.sub = rospy.Subscriber("/robbie/whole_body_controller/state", JointTrajectoryControllerState, self.update_pos)
 		while self.x0 == []:
@@ -103,8 +127,9 @@ class Robbie:
 
 		goal = FollowJointTrajectoryGoal()
 		goal.trajectory.joint_names = self.joint_names
+
 		i = 1
-		for pos in self.extract_trajectory(self.x0, desired_height):
+		for pos in self.extract_height_trajectory(self.x0, desired_height):
 			goal.trajectory.points.append(JointTrajectoryPoint(
 			 positions = pos[1:9],
 			 time_from_start = rospy.Duration(i*time)))
@@ -133,13 +158,80 @@ class Robbie:
 		self.bag.close()
 
 
+	def adapt(self, trajectory, goal_, time = 0.5):
 
+		self.subT = rospy.Subscriber("/robbie/whole_body_controller/state", JointTrajectoryControllerState, self.update_pos_T)
+		while self.x0T == []:
+			rospy.loginfo("Waiting for controller state")
+			rospy.sleep(0.1)
+
+		goal = FollowJointTrajectoryGoal()
+		goal.trajectory.joint_names = self.joint_names
+
+		i = 1
+		for pos in self.extract_transition_trajectory(trajectory, self.x0T, goal_):
+			goal.trajectory.points.append(JointTrajectoryPoint(
+			 positions = pos[1:9],
+			 time_from_start = rospy.Duration(i*time)))
+			i+=1
+
+		goal.trajectory.header.stamp = rospy.Time.now()
+
+		self.act.send_goal_and_wait(goal)
+
+	def extract_transition_trajectory(self, trajectory_, current_state, goal):
+
+		trajectory = []
+		for pos in trajectory_:
+			trajectory.append(CostList(pos[0], self.minimum_distance(current_state, pos)) )
+
+		trajectory.sort(key = CostList.getCost)
+
+		current_state = trajectory[0].index
+		trajectory = trajectory_[current_state::]
+
+		if goal == 'N':
+			return trajectory
+		return trajectory[::-1]
 
 def main():
 	rospy.init_node('stand_controller')
 	rospy.loginfo("standing trajectory initiated")
 	robot = Robbie()
-	robot.adjust_height(desired_height = 1)
+# 
+	# x0 = [0.8, 0, 0.3823, 0, -1.8360, -1.8360, 0, 0]
+	# x0 = [1.1937, 0, 0.5175, -0.15, -0.8724, -0.8724, 0, 0]
+	x0 = [1.1937, 0.1, 0.1121, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
+	
+
+	stage_1 = robot.waypointsT[0][0][0]
+	stage_2 = robot.waypointsT[0][0][1]
+
+	# print stage_1
+	# print "=============================================="
+	# print "=============================================="
+	# print "=============================================="
+	# print "=============================================="
+	# print stage_2
+
+	x0 = [1.1937, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
+
+	robot.start(x0, time = 2)
+	# robot.adapt(stage_1, time = 0.3, goal_ = 'N')
+
+	# robot.adapt(stage_2, time = 0.03, goal_ = 'B')
+
+
+	# robot.adapt(stage_1, time = 0.3, goal_ = 'N')
+	# robot.adapt(stage_2, time = 0.3, goal_ = 'N')
+
+	# robot.adapt(stage_1, time = 0.3, goal_ ='B')
+	# robot.adapt(stage_2, time = 0.01, goal_ ='B')
+
+
+	# 
+	# robot.adjust_height(desired_height = 1)
+	# robot.adjust_height(desired_height = 1, time = 0.1)
 
 
 if __name__ == '__main__':
@@ -151,3 +243,17 @@ if __name__ == '__main__':
 	# for topic, msg, t in bag.read_messages(topics=['/tf']):
 	# 	print msg
 
+
+	# x0 = [0, 0, 0, -0.15, 0, 0, 0, 0]
+	# x0 = [0.8, 0, 0.4047, -0.2, 0, 0, 0, 0] #x0 = [0.8, 0, 0, -0.2, 0, 0, 0, 0]
+	# x0 = [0.8, 0, 0.3, -0.2, 0, 0, 0, 0]
+	# x0 = [1.2, 0, 0.5, -0.2, 0, 0, 0, 0]
+	# x0 = [1.5, 0.1, 0.3, -0.2, 0, 0, 0, 0]
+	# x0 = [1.5, 0.2, 0.3, -0.2, 0, 0, 0, 0]
+	# x0 = [0, 0.2, 0.5, -0.2, 0, 0, 0, 0]
+	# x0 = [0.7, 0.2, 0.5, -0.2, 0, 0, 0, 0]
+
+	# x0 = [0.8, 0, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
+	# x0 = [1.2, 0, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
+	# x0 = [1.2, 0.2, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
+	# x0 = [0.8, 0, 0.3, -0.2, 0, 0, 0, 0]

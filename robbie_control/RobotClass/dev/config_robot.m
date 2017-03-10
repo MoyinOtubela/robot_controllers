@@ -116,13 +116,14 @@ classdef config_robot < handle
         mass = [];
         total_mass;
 
+        stab_height = 0;
+
 
 	end
 
 	methods(Abstract, Hidden = true)
 		updateJoints(obj);
 		update(obj);
-        relative_rotation(obj);
 	end
 
 	% methods(Abstract, Access = protected)
@@ -211,7 +212,7 @@ classdef config_robot < handle
 			k = (pi/2 -  (1.22173048 + joints(1)));
 
 			h = 0.24*sin(k);
-            obj.stab_angle =  pi/2 - (1.22173048 + joints(1)) + asin( (h+(obj.drive_wheel_rad-obj.stab_wheel_rad))/(0.25)) - 0.698131701;
+            obj.stab_angle =  pi/2 - (1.22173048 + joints(1)) + asin( (h+(obj.drive_wheel_rad-obj.stab_wheel_rad) - obj.stab_height)/(0.25)) - 0.698131701;
 			obj.update;
 
 		end	

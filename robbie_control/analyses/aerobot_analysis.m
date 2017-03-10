@@ -289,46 +289,48 @@ classdef aerobot_analysis
 			az = 180;
 			el = 0;
 			view(az, el);
-
-
-			h = zeros(1, 15);
+			h = zeros(1, 16);
 			fields = fieldnames(pose);
 
-			for i = 1:15
-				pose_ = pose.(fields{i})(1, :);
-				h(i) = plot3(pose_(1), pose_(2), pose_(3),'b.','MarkerSize', 39);
-			end
-
-			h(16) = plot3(pose.com(1,1),pose.com(2,1),pose.com(3,1),'k.','MarkerSize', 60);
 
 
-   %          mass = [
-   %              obj.camera_mass;
-			% 	obj.shank_mass;
-   %              obj.stab_wheel_mass;
-   %              obj.stab_mass;
-   %              obj.thigh_mass;
-   %              obj.torso_mass;
-   %              obj.lhm_mass;
-   %              obj.left_lhm_wheel_mass;
-   %              obj.right_lhm_wheel_mass;
-   %              obj.left_shoulder_mass;
-   %              obj.right_shoulder_mass;
-   %              obj.left_arm_mass;
-   %              obj.right_arm_mass;
-   %              obj.shank_left_wheel_mass;
-   %              obj.shank_right_wheel_mass;
-   %              ];
+
+            mass = [
+                obj.camera_mass;
+				obj.shank_mass;
+                obj.stab_wheel_mass;
+                obj.stab_mass;
+                obj.thigh_mass;
+                obj.torso_mass;
+                obj.lhm_mass;
+                obj.left_lhm_wheel_mass;
+                obj.right_lhm_wheel_mass;
+                obj.left_shoulder_mass;
+                obj.right_shoulder_mass;
+                obj.left_arm_mass;
+                obj.right_arm_mass;
+                obj.shank_left_wheel_mass;
+                obj.shank_right_wheel_mass;
+                ];
 
 
+            % unproportional 
 			% for i = 1:15
 			% 	pose_ = pose.(fields{i})(1, :);
-			% 	h(i) = plot3(pose_(1), pose_(2), pose_(3),'b.','MarkerSize', 5*mass(i));
+			% 	h(i) = plot3(pose_(1), pose_(2), pose_(3),'b.','MarkerSize', 39);
 			% end
 
-   %          total_mass = sum(mass);
+			% h(16) = plot3(pose.com(1,1),pose.com(2,1),pose.com(3,1),'k.','MarkerSize', 60);
 
-			% h(16) = plot3(pose.com(1,1),pose.com(2,1),pose.com(3,1),'k.','MarkerSize', 5*total_mass);
+			%  proportional 
+			for i = 1:15
+				pose_ = pose.(fields{i})(1, :);
+				h(i) = plot3(pose_(1), pose_(2), pose_(3),'b.','MarkerSize', 5*mass(i));
+			end
+
+            total_mass = sum(mass);
+
+			h(16) = plot3(pose.com(1,1),pose.com(2,1),pose.com(3,1),'k.','MarkerSize', 5*total_mass);
 
 
 			% a = obj.times
@@ -348,7 +350,7 @@ classdef aerobot_analysis
 	            set(h(16), 'YData', pose_(2));
 	            set(h(16), 'ZData', pose_(3));
 
-	            % pause(s);
+	            pause(0.02);
 	            drawnow;
 			end
 

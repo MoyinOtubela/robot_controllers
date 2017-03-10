@@ -2,7 +2,7 @@ close all;clear('all');
 
 
 
-bag_name = 'aerobot_tf_100w_1.bag'
+bag_name = 'aerobot_tf_100w_3_1_1.bag'
 % bag_name = 'aerobot_tf_1.bag'
 obj = aerobot_analysis(bag_name, 1000);
 

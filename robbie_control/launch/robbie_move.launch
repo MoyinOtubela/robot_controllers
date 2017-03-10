@@ -1,0 +1,40 @@
+<launch>
+
+	<node name = "move_controller" pkg = "pid" type = "controller" output="screen">
+		<param name= "Kp" value = "-0.1"/>
+		<param name= "Ki" value = "-0.01"/>
+		<param name= "Kd" value = "-0.05"/>
+	    <param name="diagnostic_period" value="0.25" />
+	    <param name="max_loop_frequency" value="1000" />
+	    <param name="min_loop_frequency" value="1000" />
+	    <param name="upper_limit" value="0.1" />
+	    <param name="lower_limit" value="-0.1" />
+	    <param name="windup_limit" value="0.1" />
+	    <param name="topic_from_plant" value="/robbie/distance" />
+	    <param name="topic_from_controller" value="/robbie/linear"/>
+	    <param name="setpoint_topic" value="/setpoint" /> 
+	    <param name="node_name" value="move_controlle"/>
+	    <!-- <param name="pid_enable_topic" value="/robbie/switch/linear"/> -->
+
+	</node>
+
+<!-- 	<node name="rotate_controller" pkg="pid" type="controller" output="screen" > 
+	    <param name="Kp" value="-100" />
+	    <param name="Ki" value="0" />
+	    <param name="Kd" value="-0.1" />
+	    <param name="diagnostic_period" value="0.25" />
+	    <param name="max_loop_frequency" value="20" />
+	    <param name="min_loop_frequency" value="20" />
+	    <param name="upper_limit" value="10" />
+	    <param name="lower_limit" value="-10" />
+	    <param name="windup_limit" value="5" />
+	    <param name="topic_from_plant" value="/robbie/orientation" />
+	    <param name="topic_from_controller" value="/robbie/angular"/>
+	    <param name="setpoint_topic" value="/setpoint" /> 
+	    <param name="node_name" value="rotate controller"/>
+	    <param name="angle_error" value="true"/>
+ -->	    <!-- <param name="pid_enable_topic" value="/robbie/switch/angular"/> -->
+
+	<!-- </node> -->
+
+</launch>

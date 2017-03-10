@@ -37,6 +37,9 @@ function [positions] = build_lookuptable(x0, resolution)
 	% theta = obj.run(problem, x0, z(1));
 	% theta = obj.run(problem, x0, 0.45);
 	theta = obj.x0;
+
+	
+
 	for i = z
 	  theta = obj.run(problem, theta, i);
 	  positions(index, 1) = obj.height;

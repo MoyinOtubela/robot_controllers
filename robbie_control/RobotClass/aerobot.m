@@ -132,8 +132,12 @@ classdef aerobot< config_robot
             obj.a_20 = 0;               obj.alpha_20 = pi;
             obj.d_20 = 0;  obj.theta_20 = 0;
 
+            % obj.a_21 = 0;               obj.alpha_21 = 0;
+            % obj.d_21 = 0.05 + obj.lhm_position;  obj.theta_21 = 0;
+
             obj.a_21 = 0;               obj.alpha_21 = 0;
-            obj.d_21 = 0.05 + obj.lhm_position;  obj.theta_21 = 0;
+            obj.d_21 = 0.035 + obj.lhm_position;  obj.theta_21 = 0;
+
 
             obj.a_22 = -0.2125;               obj.alpha_22 = 0;
             obj.d_22 = 0;  obj.theta_22 = 0;
