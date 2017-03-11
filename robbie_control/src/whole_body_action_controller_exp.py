@@ -39,7 +39,7 @@ class Robbie:
 		self.msg.header.frame_id = "/odom"
 		self.joint_names = ["stab_joint", "knee_joint", "hip_joint", "lhm_torso_joint", "shoulder_left_joint", "shoulder_right_joint", "elbow_left_joint", "elbow_right_joint"]
 		directory = '/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/modeA/trajectories/modeC/'
-		self.workspaceT = scipy.io.loadmat(directory+'/40_waypoints')
+		self.workspaceT = scipy.io.loadmat(directory+'/lbel_waypoints')
 		self.waypointsT = self.workspaceT['waypoints']
 		# self.workspace = scipy.io.loadmat('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/100_height_waypoints_2')
 		# self.workspace = scipy.io.loadmat('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/100_height_waypoints_2')
@@ -182,30 +182,33 @@ class Robbie:
 	def extract_transition_trajectory(self, trajectory_, current_state, goal):
 
 		trajectory = []
+		index = 1
 		for pos in trajectory_:
 			trajectory.append(CostList(pos[0], self.minimum_distance(current_state, pos)) )
 
-		trajectory.sort(key = CostList.getCost)
+		trajectory.sort(key = CostList.getIndex)
 
 		current_state = trajectory[0].index
-		trajectory = trajectory_[current_state::]
+
+		print [current_state]
 
 		if goal == 'N':
+			trajectory = trajectory_[current_state::]
 			return trajectory
-		return trajectory[::-1]
+
+		trajectory = trajectory_[::-1]
+		return trajectory
 
 def main():
 	rospy.init_node('stand_controller')
 	rospy.loginfo("standing trajectory initiated")
 	robot = Robbie()
 # 
-	# x0 = [0.8, 0, 0.3823, 0, -1.8360, -1.8360, 0, 0]
-	# x0 = [1.1937, 0, 0.5175, -0.15, -0.8724, -0.8724, 0, 0]
-	x0 = [1.1937, 0.1, 0.1121, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
 	
 
 	stage_1 = robot.waypointsT[0][0][0]
 	stage_2 = robot.waypointsT[0][0][1]
+	stage_3 = robot.waypointsT[0][0][2]
 
 	# print stage_1
 	# print "=============================================="
@@ -214,20 +217,23 @@ def main():
 	# print "=============================================="
 	# print stage_2
 
-	x0 = [1.1937, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.1937, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
+	x0 = [0.5, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
+	# 
 
-	robot.start(x0, time = 2)
-	# robot.adapt(stage_1, time = 0.3, goal_ = 'N')
+	# x0 = [1.2, 0.2, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
 
-	# robot.adapt(stage_2, time = 0.03, goal_ = 'B')
-
-
-	# robot.adapt(stage_1, time = 0.3, goal_ = 'N')
+	# robot.start(time = 2)
+	# rospy.sleep(1)
+	# robot.adapt(stage_1, time = 0.1, goal_ = 'N')
+	# rospy.sleep(1)
 	# robot.adapt(stage_2, time = 0.3, goal_ = 'N')
-
-	# robot.adapt(stage_1, time = 0.3, goal_ ='B')
-	# robot.adapt(stage_2, time = 0.01, goal_ ='B')
-
+	# rospy.sleep(1)
+	# robot.adapt(stage_3, time = 1, goal_ = 'N')
+	# x0 = [1.2, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0]
+	x0 = [1.2, 0.1, 0.25, -0.4, -0.7924, -0.7924, 0, 0]
+	robot.start(x0, time = 2)
+# 
 
 	# 
 	# robot.adjust_height(desired_height = 1)
@@ -257,3 +263,6 @@ if __name__ == '__main__':
 	# x0 = [1.2, 0, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
 	# x0 = [1.2, 0.2, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
 	# x0 = [0.8, 0, 0.3, -0.2, 0, 0, 0, 0]
+	# x0 = [0.8, 0, 0.3823, 0, -1.8360, -1.8360, 0, 0]
+	# x0 = [1.1937, 0, 0.5175, -0.15, -0.8724, -0.8724, 0, 0]
+	# x0 = [1.1937, 0.1, 0.1121, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]

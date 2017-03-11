@@ -108,15 +108,15 @@ robbie:
   #  pid: {p: 100.0, i: 0.1, d: 10.0}
 
 
-  # shank_diff_controller:
-  #   type: "diff_drive_controller/DiffDriveController"
-  #   left_wheel: 'wheel_left_joint'
-  #   right_wheel: 'wheel_right_joint'
-  #   pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-  #   twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-  #   base_frame_id: 'shank_footprint'
-  #   wheel_radius: 0.102175
-  #   wheel_seperation: 0.425
+  lhm_diff_controller:
+    type: "diff_drive_controller/DiffDriveController"
+    left_wheel: 'lhm_wheel_left_joint'
+    right_wheel: 'lhm_wheel_right_joint'
+    pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+    twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
+    # base_frame_id: shank_footprint
+    # wheel_radius: 0.102175
+    # wheel_seperation: 0.425
 
   lhm_right_wheel_effort_controller:
    type: effort_controllers/JointEffortController

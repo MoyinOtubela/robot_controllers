@@ -11,10 +11,12 @@
     output="screen" ns="robbie"
     args="joint_state_controller
           whole_body_controller
-          lhm_left_wheel_effort_controller
-          lhm_right_wheel_effort_controller
+          lhm_diff_controller
           "
   />
+<!--             lhm_left_wheel_effort_controller
+          lhm_right_wheel_effort_controller
+ -->
           <!-- stand_controller -->
           <!-- stand_controller_no_hip -->
           <!-- stand_controller_no_hip_knee -->
