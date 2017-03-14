@@ -1,0 +1,36 @@
+close all; clear all;
+% x0 = [-0.3, 0, 0, 0, 0, 0, 0, 0];
+x0 = [0, 0, 0, 0, 0, 0, 0, 0];
+% x0 = [-0.3, 0.1, 0.25, 0.15, -0.7924, -0.7924, 0, 0];
+% x0 = [-0.5389, 0.0948, -0.0163, 0.3, -0.7909, -0.7909, 0, 0];
+% x0 = [-0.5389, 0.7, -0.0163, 0.3, -0.7909, -0.7909, 0, 0];
+% resolution = 10;
+% resolution2 = 5;
+% addpath('../../../');
+% addpath('../../');
+x0 = [-0.5389, 0.0948, -0.0163, 0.15, -0.7909, -0.7909, 0, 0];
+
+% positions = zeros(resolution, 9);
+% -0.5389    0.0948   -0.0163    0.1800   -0.7909   -0.7909         0
+
+%   Column 8
+
+%          0
+
+obj = LookupTableGenerator();
+obj.shank_rotation = -0.17295;
+% obj.shank_rotation = -0.5;
+% obj.shank_rotation = 0;
+obj.stab_height = 0.1;
+obj.configure(x0);
+obj.refresh();
+
+	% x0 = [1, 0.1, 0.7, 0, -0.7924, -0.7924, 0, 0]
+
+% waypoints = stab_down_knee_up(x0, resolution, resolution2);
+
+% directory = '../trajectories/climb/'
+
+% save(strcat(directory, 'lbel_waypoints'), 'waypoints')
+
+

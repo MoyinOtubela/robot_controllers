@@ -11,6 +11,9 @@ classdef aerobot< config_robot
         origin = [0 0 0 1]';
 
         height;
+        shank_height = 0;
+        lhm_height;
+        shank_rotation = 0;
     end
 
     methods(Abstract, Access = protected)
@@ -43,12 +46,12 @@ classdef aerobot< config_robot
 
         function obj = update(obj)
             % shank footprint
-            obj.a_0 = 0;                obj.alpha_0 = 0;
+            obj.a_0 = 0;                obj.alpha_0 = 0 + obj.shank_rotation;
             obj.d_0 = 0;    obj.theta_0 = 0;
 
             % shank_link
             obj.a_1 = 0;                obj.alpha_1 = 0;
-            obj.d_1 = obj.drive_wheel_rad;    obj.theta_1 = 0;
+            obj.d_1 = obj.drive_wheel_rad + obj.shank_height;    obj.theta_1 = 0;
 
             % shank_rotate 
             obj.a_2 = 0;                    obj.alpha_2 = 1.22173048 + obj.shank_angle;

@@ -209,10 +209,10 @@ classdef config_robot < handle
 
             % disp(joints(9))
 
-			k = (pi/2 -  (1.22173048 + joints(1)));
+			k = (pi/2 -  (1.22173048 + obj.shank_rotation + joints(1)));
 
 			h = 0.24*sin(k);
-            obj.stab_angle =  pi/2 - (1.22173048 + joints(1)) + asin( (h+(obj.drive_wheel_rad-obj.stab_wheel_rad) - obj.stab_height)/(0.25)) - 0.698131701;
+            obj.stab_angle =  pi/2 - (1.22173048 + obj.shank_rotation + joints(1)) + asin((h+(obj.drive_wheel_rad-obj.stab_wheel_rad) - obj.stab_height)/(0.25)) - 0.698131701;
 			obj.update;
 
 		end	

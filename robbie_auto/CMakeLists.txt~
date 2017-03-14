@@ -11,9 +11,16 @@ find_package(catkin REQUIRED COMPONENTS
   smach
   message_generation
   tf
-  controller_interface
-  pluginlib
+  Eigen3
+  laser_geometry
+  pcl_ros
+
+  #controller_interface
+  #pluginlib
 )
+find_package(PCL 1.4 REQUIRED)
+add_definitions(-std=c++11)
+
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -126,8 +133,12 @@ catkin_package(
 # include_directories(include)
 include_directories(
   include
+  /home/moyin/dev/eigen-eigen-67e894c6cd8f
   ${catkin_INCLUDE_DIRS}
+  "$(PCL_PREFIX)/pcl-1.6/pcl/filters/"
 )
+
+set(CMAKE_MODULE_PATH /home/moyin/dev/eigen-eigen-67e894c6cd8f/build_dir/Eigen3Config.cmake)
 
 
 ## Add cmake target dependencies of the library
@@ -138,10 +149,15 @@ include_directories(
 ## Declare a C++ executable
 # add_executable(robbie_auto_node src/robbie_auto_node.cpp)
 
-
+link_directories(${PCL_LIBRARY_DIRS})
 add_executable(height_publisher src/height_publisher.cpp)
 target_link_libraries(height_publisher ${catkin_LIBRARIES})
 
+add_executable(laser_to_pointcloud src/laser_to_pointcloud.cpp)
+target_link_libraries(laser_to_pointcloud ${catkin_LIBRARIES})
+
+add_executable(kinect_processor src/kinect_processing.cpp)
+target_link_libraries(kinect_processor ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

@@ -186,7 +186,7 @@ class Robbie:
 		for pos in trajectory_:
 			trajectory.append(CostList(pos[0], self.minimum_distance(current_state, pos)) )
 
-		trajectory.sort(key = CostList.getIndex)
+		trajectory.sort(key = CostList.getCost)
 
 		current_state = trajectory[0].index
 
@@ -221,19 +221,29 @@ def main():
 	x0 = [0.5, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
 	# 
 
-	# x0 = [1.2, 0.2, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
 
-	# robot.start(time = 2)
-	# rospy.sleep(1)
-	# robot.adapt(stage_1, time = 0.1, goal_ = 'N')
-	# rospy.sleep(1)
-	# robot.adapt(stage_2, time = 0.3, goal_ = 'N')
-	# rospy.sleep(1)
-	# robot.adapt(stage_3, time = 1, goal_ = 'N')
+	robot.start(time = 2)
+	rospy.sleep(1)
+	robot.adapt(stage_1, time = 0.1, goal_ = 'N')
+	rospy.sleep(1)
+	robot.adapt(stage_2, time = 0.3, goal_ = 'N')
+	rospy.sleep(1)
+	robot.adapt(stage_3, time = 1, goal_ = 'N')
+
+	
 	# x0 = [1.2, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0]
-	x0 = [1.2, 0.1, 0.25, -0.4, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.2, 0.1, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.2, -0.4, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.5, -0.4, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.5, -0.8, 0.7, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.5, 0.1, 0.7, -0.3, -0.7924, -0.7924, 0, 0]
+	# x0 = [1, 0.1, 0.7, -0.3, -0.7924, -0.7924, 0, 0]
+	# robot.start(time = 2)
+	# x0 = [1.2, 0.2, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
+	# x0 = [1.2, 0.2, 0.1798, -0.4, -1.8726, -1.8726, 0, 0]
+
 	robot.start(x0, time = 2)
-# 
+# # 
 
 	# 
 	# robot.adjust_height(desired_height = 1)

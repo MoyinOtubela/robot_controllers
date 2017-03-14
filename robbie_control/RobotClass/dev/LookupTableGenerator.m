@@ -22,6 +22,7 @@ classdef LookupTableGenerator < aerobot
 
          com_height_limit;
 
+
     end
 
     methods(Access = protected, Hidden = true)
@@ -46,8 +47,8 @@ classdef LookupTableGenerator < aerobot
             obj.x0 = [0 0 0.8 0.2 0 0 0 0];
             % obj.lb = [-pi/4 0 -1 0 -1 -1 0 0];
             % obj.ub = [0 1 0.8 0 0.383972435 0.383972435 0 0];
-            obj.lb = [-pi/4 0 -1 0 -2*pi -2*pi 0 0];
-            obj.ub = [0 1 0.8 0 0.383972435 0.383972435 0 0];
+            obj.lb = [-pi/4 0 -1 0 -pi -pi 0 0];
+            obj.ub = [0 1 0.8 0 pi pi 0 0];
 			configure(obj, obj.x0);
 			animate(obj);
     	end
@@ -73,22 +74,34 @@ classdef LookupTableGenerator < aerobot
             if(stab && lhm)
                 x_o = (obj.joint_locations(4, 1)+(obj.joint_locations(18, 1)))/2;
                 y_o = (obj.joint_locations(4, 2)+(obj.joint_locations(18, 2)))/2;
-                ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit)^2 );
+                a = (obj.com.location(1) - x_o)^2;
+                b = (obj.com.location(2) - y_o)^2;
+                c = (obj.com.location(3) - obj.desired_height)^2;
+                d = (obj.hip_monitor - obj.hip_limit)^2;
+                ssm_delta = (obj.K1*(a)^2 + obj.K2*(b)^2 + obj.K3*(c)^2 + obj.K4*(d)^2);
                 return;
             elseif (stab && shank)
                 x_o = (obj.joint_locations(4, 1)+(obj.joint_locations(2, 1)))/2;
                 y_o = (obj.joint_locations(4, 2)+(obj.joint_locations(2, 2)))/2;
-                ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit)^2 );
+                a = (obj.com.location(1) - x_o)^2;
+                b = (obj.com.location(2) - y_o)^2;
+                c = (obj.com.location(3) - obj.desired_height)^2;
+                d = (obj.hip_monitor - obj.hip_limit)^2;
+                ssm_delta = (obj.K1*(a)^2 + obj.K2*(b)^2 + obj.K3*(c)^2 + obj.K4*(d)^2);
                 return;
 
             elseif (shank && lhm)
                 x_o = (obj.joint_locations(2, 1)+(obj.joint_locations(18, 1)))/2;
                 y_o = (obj.joint_locations(2, 2)+(obj.joint_locations(18, 2)))/2;
-                ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit)^2 );
+                a = (obj.com.location(1) - x_o)^2;
+                b = (obj.com.location(2) - y_o)^2;
+                c = (obj.com.location(3) - obj.desired_height)^2;
+                d = (obj.hip_monitor - obj.hip_limit)^2;
+                ssm_delta = (obj.K1*(a)^2 + obj.K2*(b)^2 + obj.K3*(c)^2 + obj.K4*(d)^2);
                 return;
             end
                     
-            ssm_delta = 10;
+            ssm_delta = 100;
 
     		% ssm_delta = sqrt((obj.com.location(1) - x_o)^2 + (obj.com.location(2) - y_o)^2 + (obj.com.location(3) - obj.desired_height)^2 );
             % ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit) );
@@ -107,12 +120,6 @@ classdef LookupTableGenerator < aerobot
             obj.desired_height = h;
             problem.x0 = x0;
             theta = fmincon(problem)
-
-            % switch nargin
-            %     case 4
-            %         theta = fmincon(problem);
-            %     case 6
-            % end
 
             % obj.refresh;
             

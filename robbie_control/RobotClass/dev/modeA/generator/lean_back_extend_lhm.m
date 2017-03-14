@@ -13,6 +13,7 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 	obj.configure(x0);
 	obj.refresh();
 	obj.stab_height = 0.0;
+	% obj.shank_rotation = -0.17295;
 
 	% obj.K1 = 1;
 	% obj.K2 = 1000;
@@ -61,7 +62,7 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 	  positions(index, 2:9) = convert_to_robot_output(theta);
 	  fprintf('Table 1 is %g percent complete\n', (index/resolution)*100)
 	  index = index + 1;
-	  % obj.refresh;
+	  obj.refresh;
 	  % fprintf('hip angle %f\n', obj.hip_monitor*180/pi);
 	end
 
@@ -103,7 +104,7 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 	  positions2(index, 2:9) = convert_to_robot_output(theta);
 	  fprintf('Table 2 is %g percent complete\n', (index/resolution2)*100)
 	  index = index + 1;
-	  % obj.refresh;
+	  obj.refresh;
 	  % fprintf('hip angle %f\n', obj.hip_monitor*180/pi);
 	end
 
