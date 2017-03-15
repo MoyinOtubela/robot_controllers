@@ -169,18 +169,38 @@ classdef aerobot< config_robot
             elbow_left_link = arm_left_link*obj.A15;
             elbow_right_link = arm_right_link*obj.A16;
 
-            % obj.hip_monitor = acos(torso_link(3, 3));
-            % sin_b = asin(torso_link(2, 3));
-            % disp(torso_link)
             shank_left_wheel = shank_link*obj.A17;
             shank_right_wheel = shank_link*obj.A18;
 
-            % lhm_torso_link = torso_link*obj.A9*obj.A19*obj.A20*obj.A21;
-            % lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A21;
             lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A19*obj.A21;
+
+            lhm_height_offset = lhm_torso_link(3, 4);
+
+            if (lhm_height_offset < obj.lhm_wheel_rad)
+                % ext = 2;
+                % obj.shank_height = abs(lhm_height_offset-obj.lhm_wheel_rad);
+                % shank_link = obj.A0*obj.A1;
+                % stab_joint = shank_link*obj.A2*obj.A3;
+                % stab_wheel = stab_joint*obj.A4*obj.A5;
+                % knee_joint = shank_link*obj.A2*obj.A6;
+                % torso_link = knee_joint*obj.A7*obj.A8;
+                % camera_joint = torso_link*obj.A9*obj.A10;
+                % left_shoulder_link = torso_link*obj.A9*obj.A11;
+                % right_shoulder_link = torso_link*obj.A9*obj.A12;
+                % arm_left_link = left_shoulder_link*obj.A13;
+                % arm_right_link = right_shoulder_link*obj.A14;
+                % elbow_left_link = arm_left_link*obj.A15;
+                % elbow_right_link = arm_right_link*obj.A16;
+
+                % shank_left_wheel = shank_link*obj.A17;
+                % shank_right_wheel = shank_link*obj.A18;
+
+                lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A19*obj.DH(0, 0, torso_link(3, 4) - 0.035 - obj.lhm_wheel_rad, 0);
+            end
 
             lhm_left_wheel = lhm_torso_link*obj.A22;
             lhm_right_wheel = lhm_torso_link*obj.A23;
+
 
 
             z = camera_joint(3,4) - torso_link(3,4);

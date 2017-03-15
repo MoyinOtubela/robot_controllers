@@ -19,9 +19,9 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 	% obj.K2 = 1000;
 	% obj.K3 = 1;
 	obj.K1 = 1;
-	obj.K2 = 300;
+	obj.K2 = 3000;
 	obj.K3 = 1000;
-	obj.K4 = 100;
+	obj.K4 = 0;
 
 	% problem.options = optimoptions('fmincon','StepTolerance',1e-100);
 	% problem.options = optimoptions('fmincon','FunctionTolerance',1e-100);

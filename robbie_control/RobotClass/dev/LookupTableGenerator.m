@@ -46,9 +46,9 @@ classdef LookupTableGenerator < aerobot
 			% positive stab = contract
             obj.x0 = [0 0 0.8 0.2 0 0 0 0];
             % obj.lb = [-pi/4 0 -1 0 -1 -1 0 0];
-            % obj.ub = [0 1 0.8 0 0.383972435 0.383972435 0 0];
+            obj.ub = [0 1 0.8 0 0.383972435 0.383972435 0 0];
             obj.lb = [-pi/4 0 -1 0 -pi -pi 0 0];
-            obj.ub = [0 1 0.8 0 pi pi 0 0];
+            % obj.ub = [0 1 0.8 0 pi pi 0 0];
 			configure(obj, obj.x0);
 			animate(obj);
     	end
@@ -67,8 +67,8 @@ classdef LookupTableGenerator < aerobot
 
     	function [ssm_delta] = findSSMDelta(obj)
 
-            stab = obj.determine_contact(obj.joint_locations(4, 3), obj.stab_wheel_rad);
-            shank = obj.determine_contact(obj.joint_locations(2, 3), obj.drive_wheel_rad);
+            stab = obj.determine_contact(obj.joint_locations(4, 3) - obj.stab_height, obj.stab_wheel_rad);
+            shank = obj.determine_contact(obj.joint_locations(2, 3) - obj.stab_height, obj.drive_wheel_rad);
             lhm = obj.determine_contact(obj.joint_locations(18, 3), obj.lhm_wheel_rad);
 
             if(stab && lhm)
@@ -89,7 +89,6 @@ classdef LookupTableGenerator < aerobot
                 d = (obj.hip_monitor - obj.hip_limit)^2;
                 ssm_delta = (obj.K1*(a)^2 + obj.K2*(b)^2 + obj.K3*(c)^2 + obj.K4*(d)^2);
                 return;
-
             elseif (shank && lhm)
                 x_o = (obj.joint_locations(2, 1)+(obj.joint_locations(18, 1)))/2;
                 y_o = (obj.joint_locations(2, 2)+(obj.joint_locations(18, 2)))/2;
@@ -101,7 +100,7 @@ classdef LookupTableGenerator < aerobot
                 return;
             end
                     
-            ssm_delta = 100;
+            ssm_delta = 1e100;
 
     		% ssm_delta = sqrt((obj.com.location(1) - x_o)^2 + (obj.com.location(2) - y_o)^2 + (obj.com.location(3) - obj.desired_height)^2 );
             % ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit) );

@@ -14,16 +14,14 @@ function [waypoints] = lhm_down_knee_constant(x0, resolution, resolution2)
 
 	obj.refresh();
 
-	obj.stab_height = 0.0;
-
 	obj.K1 = 1;
-	obj.K2 = 1;
-	obj.K3 = 1000;
-	obj.K4 = 0;
+	obj.K2 = 1000;
+	obj.K3 = 10;
+	obj.K4 = 100;
 
-	% problem.options = optimoptions('fmincon','StepTolerance',1e-100);
+	problem.options = optimoptions('fmincon','StepTolerance',1e-100);
 	% problem.options = optimoptions('fmincon','FunctionTolerance',1e-100);
-	problem.options = optimoptions('fmincon','UseParallel', 0);
+	% problem.options = optimoptions('fmincon','UseParallel', 0);
 
 	% problem.options = optimoptions('fmincon','Display','iter');
 
@@ -38,32 +36,24 @@ function [waypoints] = lhm_down_knee_constant(x0, resolution, resolution2)
 
 	height_limit = 0.35;
 
-	obj.com_height_limit = height_limit;
 	height_trajectory = linspace(0.35, 0.7, resolution);
 	shank_angle_trajectory = linspace(-0.17295, 0, resolution);
-	% lhm_trajectory = linspace(0.15, 0.)
+	lhm_trajectory = linspace(0.15, 0.31, resolution);
 	obstacle_height = 0.08;
+	shank_height_trajectory = linspace(0, obstacle_height, resolution);
+	obj.stab_height = obstacle_height;
 
-	obj.stab_height = obstacle_height + 0.01;
-
-	% -0.3505 = 0.8 stab_angle	
-
-	% stab_trajectory = linspace(0, -0.3505, resolution);
-	% stab_trajectory = linspace(0, -0.3, resolution);
-	% height_trajectory = linspace(0.5, 0.38, resolution);
-	% height_trajectory = linspace(0.375, height_limit, resolution/2);
-	% height_trajectory = [height_trajectory, linspace(height_limit, 0.375, resolution/2)];
-	% problem.ub(4) = 0.1
-	% problem.lb(4) = 0.1
-
+	problem.ub(2) = 0;
+	problem.lb(2) = 0;
+	
 	for i = 1:1:resolution
-	  % obj.shank_rotation = shank_angle_trajectory(i);
-
-	  % problem.ub(1) = stab_trajectory(i);
-	  % problem.lb(1) = stab_trajectory(i);
-
+	  problem.lb(1) = -0.3;
+	  problem.ub(1) = 0;
+	  obj.shank_rotation = shank_angle_trajectory(i);
+	  obj.shank_height = shank_height_trajectory(i);
+	  problem.ub(4) = 0.6;
+	  problem.lb(4) = 0.15;
 	  theta = obj.run(problem, theta, height_trajectory(i));
-	  % theta = obj.run(problem, theta, height_trajectory(i));
 	  positions(index, 1) = i;
 	  positions(index, 2:9) = convert_to_robot_output(theta);
 	  fprintf('Table 1 is %g percent complete\n', (index/resolution)*100)
@@ -116,7 +106,7 @@ function [waypoints] = lhm_down_knee_constant(x0, resolution, resolution2)
 
 	waypoints.stage_1 = positions;
 
-% 	waypoints.stage_2 = positions2;
+	waypoints.stage_2 = [0 0 0 0 0 0 0 0 0];
 
 % 	waypoints.stage_3 = [0 0.5 0.1 0.25 -0.15 -0.7924 -0.7924 0 0];
 	
