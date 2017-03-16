@@ -50,8 +50,10 @@ classdef aerobot< config_robot
             obj.d_0 = 0;    obj.theta_0 = 0;
 
             % shank_link
+            % obj.a_1 = 0;                obj.alpha_1 = 0;
+            % obj.d_1 = obj.drive_wheel_rad + obj.shank_height;    obj.theta_1 = 0;
             obj.a_1 = 0;                obj.alpha_1 = 0;
-            obj.d_1 = obj.drive_wheel_rad + obj.shank_height;    obj.theta_1 = 0;
+            obj.d_1 = 0.1 + obj.shank_height;    obj.theta_1 = 0;
 
             % shank_rotate 
             obj.a_2 = 0;                    obj.alpha_2 = 1.22173048 + obj.shank_angle;
@@ -73,7 +75,7 @@ classdef aerobot< config_robot
 
             % extend from shank_link to knee joint
             obj.a_6 = 0;        obj.alpha_6 = 0;
-            obj.d_6 = 0.347;                obj.theta_6 = 0;
+            obj.d_6 = obj.shank_len;                obj.theta_6 = 0;
 
             % UPPER BODY
             % rotate thigh joint
@@ -85,7 +87,7 @@ classdef aerobot< config_robot
             obj.d_8 = obj.thigh_len;    obj.theta_8 = 0;
 
             % rotate torso joint
-            obj.a_9 = 0;                obj.alpha_9 = 1.57 + obj.hip_angle;
+            obj.a_9 = 0;                obj.alpha_9 = pi/2 + obj.hip_angle;
             obj.d_9 = 0; obj.theta_9 = 0;
 
             % extend torso joint to camera
@@ -124,7 +126,7 @@ classdef aerobot< config_robot
             % right elbow
             obj.a_18 = -0.1175;        obj.alpha_18 = 0;
             obj.d_18 = 0;                obj.theta_18 = 0;
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             % LHM torso joint
             obj.a_19 = 0;               obj.alpha_19 = 0;
             obj.d_19 = 0.03;  obj.theta_19 = 0;
@@ -138,8 +140,10 @@ classdef aerobot< config_robot
             % obj.a_21 = 0;               obj.alpha_21 = 0;
             % obj.d_21 = 0.05 + obj.lhm_position;  obj.theta_21 = 0;
 
+            % obj.a_21 = 0;               obj.alpha_21 = 0;
+            % obj.d_21 = 0.035 + obj.lhm_position;  obj.theta_21 = 0;
             obj.a_21 = 0;               obj.alpha_21 = 0;
-            obj.d_21 = 0.035 + obj.lhm_position;  obj.theta_21 = 0;
+            obj.d_21 = obj.lhm_position;  obj.theta_21 = 0;
 
 
             obj.a_22 = -0.2125;               obj.alpha_22 = 0;
@@ -172,11 +176,14 @@ classdef aerobot< config_robot
             shank_left_wheel = shank_link*obj.A17;
             shank_right_wheel = shank_link*obj.A18;
 
-            lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A19*obj.A21;
+            % lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A19*obj.A21;
 
+            % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.03,0)*obj.DH(0,-pi/2,-0.05,0)*obj.DH(0,0,-obj.lhm_position,0);
+            lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.05,0)*obj.DH(0,-pi/2,-0.03,0)*obj.DH(0,0,-obj.lhm_position,0);
+            % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.0,0)*obj.DH(0,-pi/2,-0.0,0)*obj.DH(0,0,-obj.lhm_position,0);
             lhm_height_offset = lhm_torso_link(3, 4);
 
-            if (lhm_height_offset < obj.lhm_wheel_rad)
+            if (lhm_height_offset <= obj.lhm_wheel_rad)
                 % ext = 2;
                 % obj.shank_height = abs(lhm_height_offset-obj.lhm_wheel_rad);
                 % shank_link = obj.A0*obj.A1;
@@ -194,8 +201,13 @@ classdef aerobot< config_robot
 
                 % shank_left_wheel = shank_link*obj.A17;
                 % shank_right_wheel = shank_link*obj.A18;
-
-                lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A19*obj.DH(0, 0, torso_link(3, 4) - 0.035 - obj.lhm_wheel_rad, 0);
+                % height
+                obj.lhm_position = -(torso_link(3, 4) - 0.05 - obj.lhm_wheel_rad);
+                % obj.lhm_position = -(torso_link(3, 4) - 0.0 - obj.lhm_wheel_rad);
+                % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.03,0)*obj.DH(0,-pi/2,-0.05,0)*obj.DH(0,0,obj.lhm_position,0);
+                lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.05,0)*obj.DH(0,-pi/2,-0.03,0)*obj.DH(0,0,obj.lhm_position,0);
+                % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.0,0)*obj.DH(0,-pi/2,-0.0,0)*obj.DH(0,0,-(torso_link(3, 4) - 0.0 - obj.lhm_wheel_rad),0);
+                % lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A19*obj.DH(0, 0, torso_link(3, 4) - 0.035 - obj.lhm_wheel_rad, 0);
             end
 
             lhm_left_wheel = lhm_torso_link*obj.A22;

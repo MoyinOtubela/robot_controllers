@@ -22,6 +22,8 @@ classdef LookupTableGenerator < aerobot
 
          com_height_limit;
 
+         obstacle_height = 0;
+
 
     end
 
@@ -65,10 +67,13 @@ classdef LookupTableGenerator < aerobot
             contact = ( abs(support - wheel_radius) <=  0.01);
         end
 
+
     	function [ssm_delta] = findSSMDelta(obj)
 
+            % stab = obj.determine_contact(obj.joint_locations(4, 3) - obj.stab_height, obj.stab_wheel_rad);
             stab = obj.determine_contact(obj.joint_locations(4, 3) - obj.stab_height, obj.stab_wheel_rad);
-            shank = obj.determine_contact(obj.joint_locations(2, 3) - obj.stab_height, obj.drive_wheel_rad);
+            shank = obj.determine_contact(obj.joint_locations(2, 3)-obj.obstacle_height, obj.drive_wheel_rad);
+            % shank = obj.determine_contact(obj.joint_locations(2, 3), obj.drive_wheel_rad);
             lhm = obj.determine_contact(obj.joint_locations(18, 3), obj.lhm_wheel_rad);
 
             if(stab && lhm)

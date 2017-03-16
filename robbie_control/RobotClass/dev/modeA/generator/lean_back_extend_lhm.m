@@ -1,4 +1,4 @@
-function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
+function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, resolution2)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
     clc; close all;
@@ -13,15 +13,15 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 	obj.configure(x0);
 	obj.refresh();
 	obj.stab_height = 0.0;
-	% obj.shank_rotation = -0.17295;
 
-	% obj.K1 = 1;
-	% obj.K2 = 1000;
-	% obj.K3 = 1;
 	obj.K1 = 1;
-	obj.K2 = 3000;
-	obj.K3 = 1000;
-	obj.K4 = 0;
+	obj.K2 = 2;
+	obj.K3 = 10;
+	obj.K4 = 1;
+	% obj.K1 = 1;
+	% obj.K2 = 100;
+	% obj.K3 = 5;
+	% obj.K4 = 20;
 
 	% problem.options = optimoptions('fmincon','StepTolerance',1e-100);
 	% problem.options = optimoptions('fmincon','FunctionTolerance',1e-100);
@@ -51,12 +51,20 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 	% height_trajectory = [height_trajectory, linspace(height_limit, 0.375, resolution/2)];
 	% problem.ub(4) = 0.1
 	% problem.lb(4) = 0.1
+	% Extend lhm fully
+    problem.ub(4) = 1;
+    problem.lb(4) = 1;
 
 	for i = 1:1:resolution
 	  problem.ub(1) = stab_trajectory(i);
 	  problem.lb(1) = stab_trajectory(i);
 
 	  theta = obj.run(problem, theta, height_limit);
+	  % lhm_y = (obj.joint_locations(6, 2) - obj.joint_locations(16, 2))^2;
+	  % lhm_z = (obj.joint_locations(6, 3) - obj.joint_locations(16, 3))^2;
+	  % theta(4) = sqrt(lhm_y + lhm_z);
+	  theta(4) = -obj.lhm_position;
+	  fprintf('theta(4) = %g', theta(4))
 	  % theta = obj.run(problem, theta, height_trajectory(i));
 	  positions(index, 1) = i;
 	  positions(index, 2:9) = convert_to_robot_output(theta);
@@ -70,8 +78,9 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 
 % 	set lhm
 	% problem.options.FunctionTolerance = 1e-100;
-    problem.ub(4) = 0.18;
-    problem.lb(4) = 0.18;
+	% Extend lhm fully
+    problem.ub(4) = 1;
+    problem.lb(4) = 1;
 
 %   constrain knee to prevent standing
     % problem.ub(2) = 0;
@@ -79,14 +88,18 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 
     stab_trajectory = linspace(theta(1), -0.5389, resolution2);
 
-	stab_height_trajectory = linspace(0, 0.1, resolution2*0.2);
+	stab_height_trajectory = linspace(0, 0.2, resolution2*0.2);
 
 	positions2 = zeros(resolution2, 9);
 
+	% obj.K1 = 1;
+	% obj.K2 = 100;
+	% obj.K3 = 300;
+	% obj.K4 = 20;
 	obj.K1 = 1;
-	obj.K2 = 100;
-	obj.K3 = 300;
-	obj.K4 = 20;
+	obj.K2 = 700;
+	obj.K3 = 100;
+	obj.K4 = 10;
 
 	height_limit = 0.3;
 
@@ -95,11 +108,18 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 	  if i>resolution2*0.8
 		problem.ub(2) = 0.25;
 		problem.lb(2) = 0;
+		obj.hip_limit = pi/1.4;
 	  	obj.stab_height = stab_height_trajectory(i-resolution2*0.8);
 	  end
 	  problem.ub(1) = stab_trajectory(i);
 	  problem.lb(1) = stab_trajectory(i);
 	  theta = obj.run(problem, theta, height_limit);
+	  theta(4) = -obj.lhm_position;
+	  fprintf('theta(4) = %g', theta(4))
+	  fprintf('theta(1) = %g', theta(1))
+	  % lhm_y = (obj.joint_locations(6, 2) - obj.joint_locations(16, 2))^2;
+	  % lhm_z = (obj.joint_locations(6, 3) - obj.joint_locations(16, 3))^2;
+	  % theta(4) = sqrt(lhm_y + lhm_z);
 	  positions2(index, 1) = i;
 	  positions2(index, 2:9) = convert_to_robot_output(theta);
 	  fprintf('Table 2 is %g percent complete\n', (index/resolution2)*100)
@@ -135,14 +155,16 @@ function [waypoints] = lean_back_extend_lhm(x0, resolution, resolution2)
 	%   % fprintf('hip angle %f\n', obj.hip_monitor*180/pi);
 	% end
 
-	waypoints.stage_1 = positions;
+	stage_1 = positions;
 
-	waypoints.stage_2 = positions2;
+	stage_2 = positions2;
 
 
 	% waypoints.stage_3 = [0 1.1937 0.1 0.25 -0.15 -0.7924 -0.7924 0 0];
-	waypoints.stage_3 = [0 0.5 0.1 0.25 -0.15 -0.7924 -0.7924 0 0];
+	stage_3 = [0 0.5 0.1 0.25 -0.15 -0.7924 -0.7924 0 0];
 	% waypoints.stage_3 = positions3;
+
+
 
 
 

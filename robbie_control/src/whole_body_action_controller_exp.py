@@ -38,9 +38,16 @@ class Robbie:
 		self.msg = JointTrajectory()
 		self.msg.header.frame_id = "/odom"
 		self.joint_names = ["stab_joint", "knee_joint", "hip_joint", "lhm_torso_joint", "shoulder_left_joint", "shoulder_right_joint", "elbow_left_joint", "elbow_right_joint"]
-		directory = '/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/modeA/trajectories/modeC/'
-		self.workspaceT = scipy.io.loadmat(directory+'/lbel_waypoints')
-		self.waypointsT = self.workspaceT['waypoints']
+		directory_A = '/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/modeA/trajectories/modeC/'
+		directory_C = '/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/modeC/trajectories/climb/'
+		self.workspaceA = scipy.io.loadmat(directory_A+'/lbel_waypoints')
+		self.stage_A1 = self.workspaceA['stage_1']
+		self.stage_A2 = self.workspaceA['stage_2']
+		self.stage_A3 = self.workspaceA['stage_3']
+		self.workspaceC = scipy.io.loadmat(directory_C+'/ldkc_waypoints')
+		self.stage_C1 = self.workspaceC['stage_1']
+		self.stage_C2 = self.workspaceC['stage_2']
+		self.stage_C3 = self.workspaceC['stage_3']
 		# self.workspace = scipy.io.loadmat('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/100_height_waypoints_2')
 		# self.workspace = scipy.io.loadmat('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/100_height_waypoints_2')
 
@@ -186,7 +193,7 @@ class Robbie:
 		for pos in trajectory_:
 			trajectory.append(CostList(pos[0], self.minimum_distance(current_state, pos)) )
 
-		trajectory.sort(key = CostList.getCost)
+		trajectory.sort(key = CostList.getIndex)
 
 		current_state = trajectory[0].index
 
@@ -206,9 +213,9 @@ def main():
 # 
 	
 
-	stage_1 = robot.waypointsT[0][0][0]
-	stage_2 = robot.waypointsT[0][0][1]
-	stage_3 = robot.waypointsT[0][0][2]
+	# stage_1 = robot.waypointsT[0][0][0]
+	# stage_2 = robot.waypointsT[0][0][1]
+	# stage_3 = robot.waypointsT[0][0][2]
 
 	# print stage_1
 	# print "=============================================="
@@ -218,17 +225,37 @@ def main():
 	# print stage_2
 
 	# x0 = [1.1937, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
-	x0 = [0.5, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
-	# 
+	# x0 = [0.5, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
+	# # 
+
+	# # 1.1937    0.0729    0.1646   -0.1800   -1.2545   -1.2545         0
+
+ # #  Column 9
+
+ # #         0
+ # #         0
+ # #         0
+ # #         0
+ # #         0
+ 	x0 = [0, 0.0729, 0.1646, -0.18, -1.2545, -1.2545, 0, 0]
+ 	# x0 = [0, 0.0, 0.0, -0.1, -0, -0, 0, 0]
 
 
 	robot.start(time = 2)
 	rospy.sleep(1)
-	robot.adapt(stage_1, time = 0.1, goal_ = 'N')
+	robot.adapt(robot.stage_A1, time = 0.4, goal_ = 'N')
 	rospy.sleep(1)
-	robot.adapt(stage_2, time = 0.3, goal_ = 'N')
-	rospy.sleep(1)
-	robot.adapt(stage_3, time = 1, goal_ = 'N')
+	robot.adapt(robot.stage_A2, time = 0.4, goal_ = 'N')
+	robot.start(x0, time = 0.6)
+	# rospy.sleep(1)
+	# robot.adapt(robot.stage_A3, time = 0.5, goal_ = 'N')
+	rospy.sleep(5)
+	# # robot.adapt(robot.stage_C3, time = 1, goal_ = 'N')
+	robot.adapt(robot.stage_C1, time = 0.2, goal_ = 'N')
+	rospy.sleep(4)
+	robot.adapt(robot.stage_C2, time = 0.2, goal_ = 'N')
+	# rospy.sleep(1)
+	robot.adapt(robot.stage_C3, time = 1, goal_ = 'N')
 
 	
 	# x0 = [1.2, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0]
@@ -242,7 +269,7 @@ def main():
 	# x0 = [1.2, 0.2, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
 	# x0 = [1.2, 0.2, 0.1798, -0.4, -1.8726, -1.8726, 0, 0]
 
-	robot.start(x0, time = 2)
+	# robot.start(x0, time = 2)
 # # 
 
 	# 

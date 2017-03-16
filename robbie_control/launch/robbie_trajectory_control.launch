@@ -30,5 +30,7 @@
     <remap from="/joint_states" to="/robbie/joint_states" />
   </node>
 
+  <!-- <node name="cmd_vel_pub" pkg="turtlebot_tele" -->
+
 
 </launch>
