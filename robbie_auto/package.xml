@@ -50,6 +50,9 @@
   <build_depend>controller_interface</build_depend>
   <build_depend>plugins</build_depend>
   <build_depend>message_generation</build_depend>
+  <build_depend>laser_geometry</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>pcl_conversions</build_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
@@ -59,6 +62,9 @@
   <run_depend>controller_interface</run_depend>
   <run_depend>plugins</run_depend>
   <run_depend>controller_manager</run_depend>
+  <run_depend>laser_geometry</run_depend>
+  <run_depend>pcl_ros</run_depend>
+  <run_depend>pcl_conversions</run_depend>
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- <robbie_auto plugin="${prefix}/controller_plugins.xml" /> -->

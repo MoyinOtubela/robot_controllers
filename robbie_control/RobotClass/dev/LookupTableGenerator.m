@@ -22,6 +22,9 @@ classdef LookupTableGenerator < aerobot
 
          com_height_limit;
 
+         obstacle_height = 0;
+
+
     end
 
     methods(Access = protected, Hidden = true)
@@ -45,9 +48,9 @@ classdef LookupTableGenerator < aerobot
 			% positive stab = contract
             obj.x0 = [0 0 0.8 0.2 0 0 0 0];
             % obj.lb = [-pi/4 0 -1 0 -1 -1 0 0];
-            % obj.ub = [0 1 0.8 0 0.383972435 0.383972435 0 0];
-            obj.lb = [-pi/4 0 -1 0 -2*pi -2*pi 0 0];
             obj.ub = [0 1 0.8 0 0.383972435 0.383972435 0 0];
+            obj.lb = [-pi/4 0 -1 0 -pi -pi 0 0];
+            % obj.ub = [0 1 0.8 0 pi pi 0 0];
 			configure(obj, obj.x0);
 			animate(obj);
     	end
@@ -59,46 +62,61 @@ classdef LookupTableGenerator < aerobot
     	function [ssm] = findSSM(obj)
     		
     	end
+        function [act] = convert_to_robot_output(obj, theta)
+        %This function converts the angles generated from the solver into
+        %actionable commands for the real robot
+            act = zeros(8,1);
+            k = (pi/2 -  (1.22173048 + theta(1)));
+            h = obj.shank_to_stab*sin(k - obj.shank_rotation);
+            act(1) = pi/2 - (1.22173048 + obj.shank_rotation + theta(1)) + asin((h+(obj.drive_wheel_rad-obj.stab_wheel_rad+obj.shank_height) - obj.stab_height)/(obj.stab_len)) - 0.698131701;
+            act(2:8) = theta(2:8);
+
+        end
+
 
         function contact = determine_contact(obj, support, wheel_radius)
             contact = ( abs(support - wheel_radius) <=  0.01);
         end
 
+
     	function [ssm_delta] = findSSMDelta(obj)
 
-            stab = obj.determine_contact(obj.joint_locations(4, 3), obj.stab_wheel_rad);
-            shank = obj.determine_contact(obj.joint_locations(2, 3), obj.drive_wheel_rad);
+            stab = obj.determine_contact(obj.joint_locations(4, 3) - obj.stab_height, obj.stab_wheel_rad);
+            % stab = obj.determine_contact(obj.joint_locations(4, 3), obj.stab_wheel_rad);
+            shank = obj.determine_contact(obj.joint_locations(2, 3)-obj.obstacle_height, obj.drive_wheel_rad);
             lhm = obj.determine_contact(obj.joint_locations(18, 3), obj.lhm_wheel_rad);
 
             if(stab && lhm)
                 x_o = (obj.joint_locations(4, 1)+(obj.joint_locations(18, 1)))/2;
                 y_o = (obj.joint_locations(4, 2)+(obj.joint_locations(18, 2)))/2;
-                ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit)^2 );
+                a = (obj.com.location(1) - x_o)^2;
+                b = (obj.com.location(2) - y_o)^2;
+                c = (obj.com.location(3) - obj.desired_height)^2;
+                d = (obj.hip_monitor - obj.hip_limit)^2;
+                ssm_delta = (obj.K1*(a)^2 + obj.K2*(b)^2 + obj.K3*(c)^2 + obj.K4*(d)^2);
                 return;
             elseif (stab && shank)
                 x_o = (obj.joint_locations(4, 1)+(obj.joint_locations(2, 1)))/2;
                 y_o = (obj.joint_locations(4, 2)+(obj.joint_locations(2, 2)))/2;
-                ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit)^2 );
+                a = (obj.com.location(1) - x_o)^2;
+                b = (obj.com.location(2) - y_o)^2;
+                c = (obj.com.location(3) - obj.desired_height)^2;
+                d = (obj.hip_monitor - obj.hip_limit)^2;
+                ssm_delta = (obj.K1*(a)^2 + obj.K2*(b)^2 + obj.K3*(c)^2 + obj.K4*(d)^2);
                 return;
-
             elseif (shank && lhm)
                 x_o = (obj.joint_locations(2, 1)+(obj.joint_locations(18, 1)))/2;
                 y_o = (obj.joint_locations(2, 2)+(obj.joint_locations(18, 2)))/2;
-                ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit)^2 );
+                a = (obj.com.location(1) - x_o)^2;
+                b = (obj.com.location(2) - y_o)^2;
+                c = (obj.com.location(3) - obj.desired_height)^2;
+                d = (obj.hip_monitor - obj.hip_limit)^2;
+                ssm_delta = (obj.K1*(a)^2 + obj.K2*(b)^2 + obj.K3*(c)^2 + obj.K4*(d)^2);
                 return;
             end
                     
-            ssm_delta = 10;
-
-    		% ssm_delta = sqrt((obj.com.location(1) - x_o)^2 + (obj.com.location(2) - y_o)^2 + (obj.com.location(3) - obj.desired_height)^2 );
-            % ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit) );
-
-            % ssm_delta = sqrt(obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.hip_monitor - obj.hip_limit)^2 );
-
-            % if obj.com.location(3) > obj.com_height_limit
-            %     ssm_delta = ssm_delta*1e3;
-            % end
-
+            ssm_delta = 1e100;
+            
     	end
 
 
@@ -107,13 +125,7 @@ classdef LookupTableGenerator < aerobot
             obj.desired_height = h;
             problem.x0 = x0;
             theta = fmincon(problem)
-
-            % switch nargin
-            %     case 4
-            %         theta = fmincon(problem);
-            %     case 6
-            % end
-
+            theta(4) = obj.lhm_position;
             % obj.refresh;
             
     	end

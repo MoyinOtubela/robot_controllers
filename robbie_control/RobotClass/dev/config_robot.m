@@ -54,7 +54,8 @@ classdef config_robot < handle
         A14; A15; A16; A17; A18; A19; A20; A21; A22; A23;
 
 		drive_wheel_rad = 0.100886;
-		stab_wheel_rad = 0.0762;
+        % stab_wheel_rad = 0.0762;
+        stab_wheel_rad = 0.0750555;
 		lhm_wheel_rad = 0.102175;
 
         hip_monitor = 0;
@@ -65,8 +66,10 @@ classdef config_robot < handle
 		shank_width = 0.356/2;
 		shank_depth = 0.15;
 
+        shank_to_stab = 0.24;
+
 		% stabiliser 
-		stab_len = 0.24;
+		stab_len = 0.25;
 
 		% thigh 
 		thigh_len = 0.363;
@@ -211,11 +214,12 @@ classdef config_robot < handle
 
 			k = (pi/2 -  (1.22173048 + joints(1)));
 
-			h = 0.24*sin(k);
-            obj.stab_angle =  pi/2 - (1.22173048 + joints(1)) + asin( (h+(obj.drive_wheel_rad-obj.stab_wheel_rad) - obj.stab_height)/(0.25)) - 0.698131701;
+			h = obj.shank_to_stab*sin(k - obj.shank_rotation);
+            obj.stab_angle =  pi/2 - (1.22173048 + obj.shank_rotation + joints(1)) + asin((h+(obj.drive_wheel_rad-obj.stab_wheel_rad+obj.shank_height) - obj.stab_height)/(obj.stab_len)) - 0.698131701;
 			obj.update;
 
 		end	
+
 
 		function [x, y, z] = circle3D(obj, center, normal, radius)
 			theta = 0:0.01:2*pi;

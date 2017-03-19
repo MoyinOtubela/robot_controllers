@@ -1,0 +1,38 @@
+<launch>
+  <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen"/>
+
+  <node name="shank_voxel_filter" pkg="nodelet" type="nodelet" args="load pcl/VoxelGrid pcl_manager" output="screen">
+	<remap from="~input" to="/robbie/shank/depth/points"/>
+  	<param name="leaf_size" value="0.1"/>
+  </node>
+<!-- 
+  <node name="hukuyo_laser_node" pkg="robbie_auto" type="laser_to_pointcloud" respawn="false" output="screen">
+  	<param name="base_link" value="odom"/>
+  	<param name="base_scan" value="/robbie/laser/scan"/>
+  	<param name="pointcloud_topic" value="/robbie/pcl"/>
+  	<param name="hole_topic" value="/robbie/hole"/>
+  	<param name="step_topic" value="/robbie/step"/>
+  </node> -->
+
+  <node name="kinect_processor_node" pkg="robbie_auto" type="kinect_processor" respawn="false" output="screen">
+  	<param name="source" value="/shank_voxel_filter/output"/>
+  	<param name="frame" value="odom"/>
+  	<param name="topic" value="/robbie/pcl_shank"/>
+  </node>
+
+
+<!--   <node name="hukuyo_voxel_filter" pkg="nodelet" type="nodelet" args="load pcl/VoxelGrid pcl_manager" output="screen">
+	<remap from="~input" to="/robbie/pcl"/>
+  	<param name="leaf_size" value="0.025"/>
+  </node>
+ -->
+
+ <!--   <node name="laser_node2" pkg="robbie_auto" type="laser_to_pointcloud" respawn="false" output="screen">
+  	<param name="base_link" value="odom"/>
+  	<param name="base_scan" value="/robbie/laser/shank_scan"/>
+  	<param name="pointcloud_topic" value="/robbie/pcl_shank"/>
+  </node>
+-->
+
+</launch>
+
