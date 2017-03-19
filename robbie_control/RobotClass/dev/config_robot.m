@@ -220,6 +220,7 @@ classdef config_robot < handle
 
 		end	
 
+
 		function [x, y, z] = circle3D(obj, center, normal, radius)
 			theta = 0:0.01:2*pi;
 			v=null(normal);

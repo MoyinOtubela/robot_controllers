@@ -11,6 +11,12 @@ from math import sqrt
 import rosbag
 import subprocess
 
+import math
+import tf
+import geometry_msgs.msg
+import numpy
+import thread
+
 
 class CostList(object):
 	def __init__(self, index, cost):
@@ -40,6 +46,7 @@ class Robbie:
 		self.joint_names = ["stab_joint", "knee_joint", "hip_joint", "lhm_torso_joint", "shoulder_left_joint", "shoulder_right_joint", "elbow_left_joint", "elbow_right_joint"]
 		directory_A = '/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/modeA/trajectories/modeC/'
 		directory_C = '/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/modeC/trajectories/climb/'
+		directory_B = '/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/modeC/trajectories/modeB/'
 		self.workspaceA = scipy.io.loadmat(directory_A+'/lbel_waypoints')
 		self.stage_A1 = self.workspaceA['stage_1']
 		self.stage_A2 = self.workspaceA['stage_2']
@@ -48,10 +55,20 @@ class Robbie:
 		self.stage_C1 = self.workspaceC['stage_1']
 		self.stage_C2 = self.workspaceC['stage_2']
 		self.stage_C3 = self.workspaceC['stage_3']
+		self.workspaceB = scipy.io.loadmat(directory_B+'/sdsu_waypoints')
+		self.stage_B1 = self.workspaceB['stage_1']
+		self.stage_B2 = self.workspaceB['stage_2']
+		self.stage_B3 = self.workspaceB['stage_3']
+		self.stage_B4 = self.workspaceB['stage_4']
+
+# setup motor command publishers
+		self.cmd_vel = rospy.Publisher('robbie/cmd_vel', geometry_msgs.msg.Twist,queue_size=1)
+		self.cmd_vel_lhm = rospy.Publisher('robbie/cmd_vel_lhm', geometry_msgs.msg.Twist,queue_size=1)
+		self.listener = tf.TransformListener()
 		# self.workspace = scipy.io.loadmat('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/100_height_waypoints_2')
 		# self.workspace = scipy.io.loadmat('/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/RobotClass/dev/100_height_waypoints_2')
 
-		self.bag_name = 'sample_bag'
+		# self.bag_name = 'sample_bag'
 		self.x0 = []
 		self.x0T = []
 		# self.bag = rosbag.Bag('sample_bag_1.bag','w')
@@ -206,75 +223,180 @@ class Robbie:
 		trajectory = trajectory_[::-1]
 		return trajectory
 
+	def locomote_shank(self, wheel_frame, goal):
+		done=True
+		while(done and not rospy.is_shutdown()):
+			try:
+				(trans,rot) = self.listener.lookupTransform(wheel_frame, goal, rospy.Time(0))
+				linear = 0.5 * math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+				cmd = geometry_msgs.msg.Twist()
+				# if linear > 0.5:
+				# 	linear = 0.5
+				cmd.linear.x = linear
+				cmd.angular.z = 4*math.atan2(trans[1], trans[0])
+				self.cmd_vel.publish(cmd)
+				# angular = 4 * math.atan2(trans[1], trans[0])
+
+				if trans[0] < 0.01:
+					done = False
+			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+				continue
+
+	def locomote_lhm(self, wheel_frame, goal):
+		done=True
+		while(done and not rospy.is_shutdown()):
+			try:
+				(trans,rot) = self.listener.lookupTransform(wheel_frame, goal, rospy.Time(0))
+				linear = 0.5 * math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+				cmd = geometry_msgs.msg.Twist()
+				cmd.linear.x = linear
+				cmd.angular.z = 4*math.atan2(trans[1], trans[0])
+				self.cmd_vel_lhm.publish(cmd)
+				# angular = 4 * math.atan2(trans[1], trans[0])
+
+				if trans[0] < 0.01:
+					done = False
+			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+				continue
+
+	def locomote_lhm_shank(self, wheel_frame, goal):
+		done=False
+		while(not done and not rospy.is_shutdown()):
+			try:
+				(trans,rot) = self.listener.lookupTransform(wheel_frame, goal, rospy.Time(0))
+				linear = 0.5* math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+				cmd = geometry_msgs.msg.Twist()
+				cmd.linear.x = linear
+				cmd.angular.z = 4*math.atan2(trans[1], trans[0])
+				self.cmd_vel_lhm.publish(cmd)
+				self.cmd_vel.publish(cmd)
+				# angular = 4 * math.atan2(trans[1], trans[0])
+
+				if trans[0] < 0.01:
+					done = True
+			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+				continue
+
+
+	def conjugate(self, a):
+		return [-a[0], -a[1], -a[2], a[3]]
+
+
+	def angle_turned(self, q):
+		q_x = q[0]
+		q_y = q[1]
+		q_z = q[2]
+		q_w = q[3]
+		t3 = 2*(q_w*q_z + q_x*q_y)
+		t4 = 1 - 2*(q_y*q_y + q_z*q_z)
+		pitch = math.atan2(t3, t4)
+		return pitch
+
+
+	def quaternion_multiply(self, q1, q0):
+		w0 = q0[3]
+		x0 = q0[0]
+		y0 = q0[1]
+		z0 = q0[2]
+		w1 = q1[3]
+		x1 = q1[0]
+		y1 = q1[1]
+		z1 = q1[2]
+		return [-x1 * x0 - y1 * y0 - z1 * z0 + w1 * w0,
+		x1 * w0 + y1 * z0 - z1 * y0 + w1 * x0,
+		-x1 * z0 + y1 * w0 + z1 * x0 + w1 * y0,
+		x1 * y0 - y1 * x0 + z1 * w0 + w1 * z0]
+
+
+	def rotate(self, wheel_frame, goal, angle):
+
+		if angle <= 0:
+			angle +=2*math.pi
+		if angle >= 2*math.pi:
+			angle -=2*math.pi
+
+		cmd = geometry_msgs.msg.Twist()
+		speed = 0.5
+
+		done = False
+		r = rospy.Rate(10)
+		while(not done and not rospy.is_shutdown()):
+			self.cmd_vel.publish(cmd)
+
+			try:
+				(trans,rot) = self.listener.lookupTransform(wheel_frame, goal, rospy.Time(0))
+				# d = sqrt(trans[1]**2 + trans[0]**2)
+				# t = math.acos(trans[1]/d)
+				t =  math.atan2(trans[1], trans[0]) 
+				if t>0:
+					cmd.angular.z = speed
+				else:
+					cmd.angular.z = -speed
+				# t =  math.atan2(trans[1], trans[0]) 
+				# print abs(self.angle_turned(rot) - angle)
+				# print cmd
+				# print rot
+				if(abs(self.angle_turned(rot) - angle) < 0.05):
+					done = True
+					self.cmd_vel.publish(geometry_msgs.msg.Twist())
+				r.sleep()
+			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+				print 'oops!'
+				continue
+
+	def stop(self):
+		cmd = geometry_msgs.msg.Twist()
+		self.cmd_vel.publish(cmd)
+		self.cmd_vel_lhm.publish(cmd)
+
+
+
 def main():
 	rospy.init_node('stand_controller')
-	rospy.loginfo("standing trajectory initiated")
+	rospy.loginfo("Trajectory initiated")
 	robot = Robbie()
-# 
-	
-
-	# stage_1 = robot.waypointsT[0][0][0]
-	# stage_2 = robot.waypointsT[0][0][1]
-	# stage_3 = robot.waypointsT[0][0][2]
-
-	# print stage_1
-	# print "=============================================="
-	# print "=============================================="
-	# print "=============================================="
-	# print "=============================================="
-	# print stage_2
-
-	# x0 = [1.1937, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
-	# x0 = [0.5, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
-	# # 
-
-	# # 1.1937    0.0729    0.1646   -0.1800   -1.2545   -1.2545         0
-
- # #  Column 9
-
- # #         0
- # #         0
- # #         0
- # #         0
- # #         0
- 	x0 = [0, 0.0729, 0.1646, -0.18, -1.2545, -1.2545, 0, 0]
- 	# x0 = [0, 0.0, 0.0, -0.1, -0, -0, 0, 0]
-
-
 	robot.start(time = 2)
-	rospy.sleep(1)
-	robot.adapt(robot.stage_A1, time = 0.4, goal_ = 'N')
-	rospy.sleep(1)
-	robot.adapt(robot.stage_A2, time = 0.4, goal_ = 'N')
-	robot.start(x0, time = 0.6)
-	# rospy.sleep(1)
-	# robot.adapt(robot.stage_A3, time = 0.5, goal_ = 'N')
-	rospy.sleep(5)
-	# # robot.adapt(robot.stage_C3, time = 1, goal_ = 'N')
-	robot.adapt(robot.stage_C1, time = 0.2, goal_ = 'N')
-	rospy.sleep(4)
-	robot.adapt(robot.stage_C2, time = 0.2, goal_ = 'N')
-	# rospy.sleep(1)
-	robot.adapt(robot.stage_C3, time = 1, goal_ = 'N')
+
+	#crevice crossing
+	# robot.rotate('shank_footprint','shank_goal_crevice',0)
+	# robot.locomote_shank('shank_footprint', 'shank_goal_crevice')
+	# robot.stop()
+	# robot.adapt(robot.stage_A1, time = 0.4, goal_ = 'N')
+	# robot.adapt(robot.stage_A2, time = 0.4, goal_ = 'N')
+	# robot.adapt(robot.stage_A3, time = 0.3, goal_ = 'N')
+	# robot.locomote_lhm_shank('shank_footprint', 'crevice_goal')
+	# robot.stop()
+
+	# robot.adapt(robot.stage_B1, time=0.5, goal_ = 'N')
+	# robot.adapt(robot.stage_B2, time=0.5, goal_ = 'N')
+	# robot.locomote_lhm('shank_footprint', 'crevice_goal_2')
+	# robot.stop()
+	# robot.adapt(robot.stage_B3, time=0.3, goal_ = 'N')
+	# robot.adapt(robot.stage_B4, time=0.5, goal_ = 'N')
+	# robot.start(time = 1)
+	# robot.stop()
+
+	# robot.adapt()
+
+
+	# step climbing
+	# robot.rotate('shank_footprint','goal_1', 0)
+	# robot.locomote_shank('shank_footprint', 'goal_1')
+	# robot.stop()
+	# robot.adapt(robot.stage_A1, time = 0.4, goal_ = 'N')
+	# robot.adapt(robot.stage_A2, time = 0.4, goal_ = 'N')
+	# robot.adapt(robot.stage_A3, time = 0.3, goal_ = 'N')
+	# robot.locomote_lhm_shank('shank_footprint', 'goal_2')
+	# robot.stop()
+	# robot.adapt(robot.stage_C1, time = 0.2, goal_ = 'N')
+	# robot.locomote_lhm_shank('shank_footprint', 'goal_3')
+	# robot.stop()
+	# robot.adapt(robot.stage_C2, time = 0.5, goal_ = 'N')
+	# robot.adapt(robot.stage_C3, time = 1, goal_ = 'N')
+	# robot.stop()
+	# robot.rotate('shank_footprint','goal_3',0)
 
 	
-	# x0 = [1.2, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0]
-	# x0 = [1.2, 0.1, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
-	# x0 = [1.2, -0.4, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
-	# x0 = [1.5, -0.4, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
-	# x0 = [1.5, -0.8, 0.7, -0.2, -0.7924, -0.7924, 0, 0]
-	# x0 = [1.5, 0.1, 0.7, -0.3, -0.7924, -0.7924, 0, 0]
-	# x0 = [1, 0.1, 0.7, -0.3, -0.7924, -0.7924, 0, 0]
-	# robot.start(time = 2)
-	# x0 = [1.2, 0.2, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
-	# x0 = [1.2, 0.2, 0.1798, -0.4, -1.8726, -1.8726, 0, 0]
-
-	# robot.start(x0, time = 2)
-# # 
-
-	# 
-	# robot.adjust_height(desired_height = 1)
-	# robot.adjust_height(desired_height = 1, time = 0.1)
 
 
 if __name__ == '__main__':
@@ -303,3 +425,21 @@ if __name__ == '__main__':
 	# x0 = [0.8, 0, 0.3823, 0, -1.8360, -1.8360, 0, 0]
 	# x0 = [1.1937, 0, 0.5175, -0.15, -0.8724, -0.8724, 0, 0]
 	# x0 = [1.1937, 0.1, 0.1121, -0.15, -0.7924, -0.7924, 0, 0] #	x0 = [1.1937, 0.0144, 0.1121, -0.2, -0.7924, -0.7924, 0, 0]
+
+	# x0 = [1.2, 0.1, 0.25, -0.15, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.2, 0.1, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.2, -0.4, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.5, -0.4, 0.25, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.5, -0.8, 0.7, -0.2, -0.7924, -0.7924, 0, 0]
+	# x0 = [1.5, 0.1, 0.7, -0.3, -0.7924, -0.7924, 0, 0]
+	# x0 = [1, 0.1, 0.7, -0.3, -0.7924, -0.7924, 0, 0]
+	# robot.start(time = 2)
+	# x0 = [1.2, 0.2, 0.1798, -0.2, -1.8726, -1.8726, 0, 0]
+	# x0 = [1.2, 0.2, 0.1798, -0.4, -1.8726, -1.8726, 0, 0]
+
+	# robot.start(x0, time = 2)
+# # 
+
+	# 
+	# robot.adjust_height(desired_height = 1)
+	# robot.adjust_height(desired_height = 1, time = 0.1)

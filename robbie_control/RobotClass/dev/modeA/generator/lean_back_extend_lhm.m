@@ -1,4 +1,4 @@
-function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, resolution2)
+function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, resolution2, obstacle_height)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
     clc; close all;
@@ -23,9 +23,9 @@ function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, reso
 	% obj.K3 = 5;
 	% obj.K4 = 20;
 
-	% problem.options = optimoptions('fmincon','StepTolerance',1e-100);
+	problem.options = optimoptions('fmincon','StepTolerance',1e-100);
 	% problem.options = optimoptions('fmincon','FunctionTolerance',1e-100);
-	problem.options = optimoptions('fmincon','UseParallel', 0);
+	% problem.options = optimoptions('fmincon','UseParallel', 0);
 
 	% problem.options = optimoptions('fmincon','Display','iter');
 
@@ -35,7 +35,6 @@ function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, reso
 	problem.ub = obj.ub;
 	problem.solver = 'fmincon';
 
-	index = 1;
 	theta = obj.x0;
 
 	height_limit = 0.35;
@@ -44,7 +43,6 @@ function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, reso
 
 	% -0.3505 = 0.8 stab_angle
 
-	% stab_trajectory = linspace(0, -0.3505, resolution);
 	stab_trajectory = linspace(0, -0.3, resolution);
 	% height_trajectory = linspace(0.5, 0.38, resolution);
 	height_trajectory = linspace(0.375, height_limit, resolution/2);
@@ -60,16 +58,10 @@ function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, reso
 	  problem.lb(1) = stab_trajectory(i);
 
 	  theta = obj.run(problem, theta, height_limit);
-	  % lhm_y = (obj.joint_locations(6, 2) - obj.joint_locations(16, 2))^2;
-	  % lhm_z = (obj.joint_locations(6, 3) - obj.joint_locations(16, 3))^2;
-	  % theta(4) = sqrt(lhm_y + lhm_z);
-	  theta(4) = -obj.lhm_position;
-	  fprintf('theta(4) = %g', theta(4))
-	  % theta = obj.run(problem, theta, height_trajectory(i));
-	  positions(index, 1) = i;
-	  positions(index, 2:9) = convert_to_robot_output(theta);
-	  fprintf('Table 1 is %g percent complete\n', (index/resolution)*100)
-	  index = index + 1;
+	  fprintf('theta(4) = %g\n', theta(4))
+	  positions(i, 1) = i;
+	  positions(i, 2:9) = convert_to_robot_output(theta);
+	  fprintf('Table 1 is %g percent complete\n', (i/resolution)*100)
 	  obj.refresh;
 	  % fprintf('hip angle %f\n', obj.hip_monitor*180/pi);
 	end
@@ -99,7 +91,7 @@ function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, reso
 	obj.K1 = 1;
 	obj.K2 = 700;
 	obj.K3 = 100;
-	obj.K4 = 10;
+	obj.K4 = 20;
 
 	height_limit = 0.3;
 
@@ -108,65 +100,42 @@ function [stage_1, stage_2, stage_3] = lean_back_extend_lhm(x0, resolution, reso
 	  if i>resolution2*0.8
 		problem.ub(2) = 0.25;
 		problem.lb(2) = 0;
-		obj.hip_limit = pi/1.4;
-	  	obj.stab_height = stab_height_trajectory(i-resolution2*0.8);
+		obj.hip_limit = pi/1.5;
+	  	% obj.stab_height = stab_height_trajectory(i-resolution2*0.8);
 	  end
 	  problem.ub(1) = stab_trajectory(i);
 	  problem.lb(1) = stab_trajectory(i);
 	  theta = obj.run(problem, theta, height_limit);
-	  theta(4) = -obj.lhm_position;
-	  fprintf('theta(4) = %g', theta(4))
-	  fprintf('theta(1) = %g', theta(1))
-	  % lhm_y = (obj.joint_locations(6, 2) - obj.joint_locations(16, 2))^2;
-	  % lhm_z = (obj.joint_locations(6, 3) - obj.joint_locations(16, 3))^2;
-	  % theta(4) = sqrt(lhm_y + lhm_z);
-	  positions2(index, 1) = i;
-	  positions2(index, 2:9) = convert_to_robot_output(theta);
-	  fprintf('Table 2 is %g percent complete\n', (index/resolution2)*100)
-	  index = index + 1;
+	  positions2(i, 1) = i;
+	  positions2(i, 2:9) = obj.convert_to_robot_output(theta);
+	  fprintf('Table 2 is %g percent complete\n', (i/resolution2)*100)
 	  obj.refresh;
-	  % fprintf('hip angle %f\n', obj.hip_monitor*180/pi);
 	end
 
-% force trajectory to found optimized state
-
-	% stab_trajectory = linspace(th, 1.1937, resolution2);
-	% knee_trajectory = linspace(theta(2), 0.1, resolution2);
-	% hip_trajectory = linspace(theta(3), 0.25, resolution2);
-	% positions3 = zeros(resolution2, 9);
-
-	% index = 1;
-
-	% obj.K1 = 1;
-	% obj.K2 = 100;
-	% obj.K3 = 500;
-	% obj.K4 = 90;
-
-
-	% for i = 1:1:resolution2
-	%   problem.ub(2) = knee_trajectory(i);
-	%   problem.lb(3) = hip_trajectory(i);
-	%   theta = obj.run(problem, theta, height_limit);
-	%   positions3(index, 1) = i;
-	%   positions3(index, 2:9) = convert_to_robot_output(theta);
-	%   fprintf('Table 3 is %g percent complete\n', (index/resolution2)*100)
-	%   index = index + 1;
-	%   obj.refresh;
-	%   % fprintf('hip angle %f\n', obj.hip_monitor*180/pi);
-	% end
 
 	stage_1 = positions;
 
 	stage_2 = positions2;
 
+	obj.stab_height = obstacle_height+0.02;
+	theta = obj.run(problem, theta, height_limit);
+	obj.refresh;
+	positions3 = zeros(1, 9);
+	positions3(1,1) = 0;
+	positions3(1,2:9) = obj.convert_to_robot_output(theta);
+	
+	stage_3 = positions3;
 
-	% waypoints.stage_3 = [0 1.1937 0.1 0.25 -0.15 -0.7924 -0.7924 0 0];
-	stage_3 = [0 0.5 0.1 0.25 -0.15 -0.7924 -0.7924 0 0];
-	% waypoints.stage_3 = positions3;
+	fprintf('theta(4) = %g\n', theta(4))
 
+	% obj.stab_height = 0.2;
+	% theta = obj.run(problem, theta, height_limit);
 
+	% stage_3 = [0, stage_2(resolution2,2:9)];
+	% stage_3 = [0, stage_2(resolution2,2:9)];
+	% stage_3(1, 2) = 0; 
 
-
+	% stage_3 = [0 0.5 0.1 0.25 -0.15 -0.7924 -0.7924 0 0];
 
 	fprintf('Table is complete')
 end

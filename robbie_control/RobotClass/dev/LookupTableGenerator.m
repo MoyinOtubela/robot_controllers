@@ -62,6 +62,17 @@ classdef LookupTableGenerator < aerobot
     	function [ssm] = findSSM(obj)
     		
     	end
+        function [act] = convert_to_robot_output(obj, theta)
+        %This function converts the angles generated from the solver into
+        %actionable commands for the real robot
+            act = zeros(8,1);
+            k = (pi/2 -  (1.22173048 + theta(1)));
+            h = obj.shank_to_stab*sin(k - obj.shank_rotation);
+            act(1) = pi/2 - (1.22173048 + obj.shank_rotation + theta(1)) + asin((h+(obj.drive_wheel_rad-obj.stab_wheel_rad+obj.shank_height) - obj.stab_height)/(obj.stab_len)) - 0.698131701;
+            act(2:8) = theta(2:8);
+
+        end
+
 
         function contact = determine_contact(obj, support, wheel_radius)
             contact = ( abs(support - wheel_radius) <=  0.01);
@@ -70,10 +81,9 @@ classdef LookupTableGenerator < aerobot
 
     	function [ssm_delta] = findSSMDelta(obj)
 
-            % stab = obj.determine_contact(obj.joint_locations(4, 3) - obj.stab_height, obj.stab_wheel_rad);
             stab = obj.determine_contact(obj.joint_locations(4, 3) - obj.stab_height, obj.stab_wheel_rad);
+            % stab = obj.determine_contact(obj.joint_locations(4, 3), obj.stab_wheel_rad);
             shank = obj.determine_contact(obj.joint_locations(2, 3)-obj.obstacle_height, obj.drive_wheel_rad);
-            % shank = obj.determine_contact(obj.joint_locations(2, 3), obj.drive_wheel_rad);
             lhm = obj.determine_contact(obj.joint_locations(18, 3), obj.lhm_wheel_rad);
 
             if(stab && lhm)
@@ -106,16 +116,7 @@ classdef LookupTableGenerator < aerobot
             end
                     
             ssm_delta = 1e100;
-
-    		% ssm_delta = sqrt((obj.com.location(1) - x_o)^2 + (obj.com.location(2) - y_o)^2 + (obj.com.location(3) - obj.desired_height)^2 );
-            % ssm_delta = (obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.com.location(3) - obj.desired_height)^2 + obj.K4*(obj.hip_monitor - obj.hip_limit) );
-
-            % ssm_delta = sqrt(obj.K1*(obj.com.location(1) - x_o)^2 + obj.K2*(obj.com.location(2) - y_o)^2 + obj.K3*(obj.hip_monitor - obj.hip_limit)^2 );
-
-            % if obj.com.location(3) > obj.com_height_limit
-            %     ssm_delta = ssm_delta*1e3;
-            % end
-
+            
     	end
 
 
@@ -124,7 +125,7 @@ classdef LookupTableGenerator < aerobot
             obj.desired_height = h;
             problem.x0 = x0;
             theta = fmincon(problem)
-
+            theta(4) = obj.lhm_position;
             % obj.refresh;
             
     	end
