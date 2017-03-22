@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   std_srvs
+  geometry_msgs
   tf
   message_filters
 )
@@ -78,7 +79,13 @@ find_package(gazebo REQUIRED)
 #   gazebo_msgs#   geometry_msgs#   rosgraph_msgs#   
 #   std_msgs
 # )
-generate_messages()
+generate_messages(
+    DEPENDENCIES
+    std_msgs
+    geometry_msgs
+)
+
+#generate_messages()
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

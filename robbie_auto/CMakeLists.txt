@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   smach
   message_generation
   tf
-  Eigen3
+  #Eigen3
   laser_geometry
   pcl_ros
 
