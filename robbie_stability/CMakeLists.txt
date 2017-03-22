@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   std_srvs
   tf
+  message_filters
 )
 
 ## System dependencies are found with CMake's conventions
@@ -152,9 +153,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 ## Declare a C++ executable
 add_executable(robbie_stability_ex src/robbie_stability_ex.cpp)
 target_link_libraries(robbie_stability_ex ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-add_executable(robbie_contact_ex src/robbie_contact_ex.cpp)
-target_link_libraries(robbie_contact_ex ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+#add_executable(robbie_contact_ex src/robbie_contact_ex.cpp)
+#target_link_libraries(robbie_contact_ex ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
+add_executable(robbie_contact_ex src/robbie_contact_ex_2.cpp)
+target_link_libraries(robbie_contact_ex ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

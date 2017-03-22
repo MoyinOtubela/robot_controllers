@@ -51,15 +51,15 @@ class Robbie:
 		self.stage_A1 = self.workspaceA['stage_1']
 		self.stage_A2 = self.workspaceA['stage_2']
 		self.stage_A3 = self.workspaceA['stage_3']
-		self.workspaceC = scipy.io.loadmat(directory_C+'/ldkc_waypoints')
-		self.stage_C1 = self.workspaceC['stage_1']
-		self.stage_C2 = self.workspaceC['stage_2']
-		self.stage_C3 = self.workspaceC['stage_3']
 		self.workspaceB = scipy.io.loadmat(directory_B+'/sdsu_waypoints')
 		self.stage_B1 = self.workspaceB['stage_1']
 		self.stage_B2 = self.workspaceB['stage_2']
 		self.stage_B3 = self.workspaceB['stage_3']
 		self.stage_B4 = self.workspaceB['stage_4']
+		self.workspaceC = scipy.io.loadmat(directory_C+'/ldkc_waypoints')
+		self.stage_C1 = self.workspaceC['stage_1']
+		self.stage_C2 = self.workspaceC['stage_2']
+		self.stage_C3 = self.workspaceC['stage_3']
 
 # setup motor command publishers
 		self.cmd_vel = rospy.Publisher('robbie/cmd_vel', geometry_msgs.msg.Twist,queue_size=1)
@@ -108,7 +108,7 @@ class Robbie:
 		height_index = height_list[0].index
 		current_state_index = current_state_list[0].index
 
-		print [current_state_index, height_index]
+		# print [current_state_index, height_index]
 		# return 0
 		
 		if (height_index > current_state_index):
@@ -125,12 +125,12 @@ class Robbie:
 
 	def update_pos(self, msg):
 		self.x0 = msg.actual.positions
-		print self.x0
+		# print self.x0
 		self.sub.unregister()
 
 	def update_pos_T(self, msg):
 		self.x0T = msg.actual.positions
-		print self.x0T
+		# print self.x0T
 		self.subT.unregister()
 
 	def start(self, positions = [0, 0, 0, 0, 0, 0, 0, 0], time = 5):
@@ -140,7 +140,9 @@ class Robbie:
 		 positions = positions,
 		 time_from_start = rospy.Duration(time)))
 		goal.trajectory.header.stamp = rospy.Time.now()
-		self.act.send_goal_and_wait(goal)
+		if self.act.send_goal_and_wait(goal) == 4:
+			return 'SUCCEEDED'
+		return 'LOST'
 
 
 	def adjust_height(self, desired_height, time = 0.5):
@@ -160,26 +162,28 @@ class Robbie:
 			i+=1
 
 		goal.trajectory.header.stamp = rospy.Time.now()
-		
-		self.bag = rosbag.Bag('sample_bag_'+str(desired_height)+'.bag','w')
-		
-		tf_bag_command = 'rosbag record -O aerobot_tf_100w_'+str(desired_height)+' /tf /robbie/whole_body_controller/state'
+		if self.act.send_goal_and_wait(goal) == 4:
+			return 'SUCCEEDED'
+		return 'LOST'
 
-		tfbag = subprocess.Popen(tf_bag_command, stdin=subprocess.PIPE, shell=True,
-		 cwd='/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/src')
+		# self.bag = rosbag.Bag('sample_bag_'+str(desired_height)+'.bag','w')
 		
-		self.sub_pose = rospy.Subscriber('/robbie/whole_body_controller/state', JointTrajectoryControllerState, self.write_pose_to_rosbag)
+		# tf_bag_command = 'rosbag record -O aerobot_tf_100w_'+str(desired_height)+' /tf /robbie/whole_body_controller/state'
+
+		# tfbag = subprocess.Popen(tf_bag_command, stdin=subprocess.PIPE, shell=True,
+		#  cwd='/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/src')
+		
+		# self.sub_pose = rospy.Subscriber('/robbie/whole_body_controller/state', JointTrajectoryControllerState, self.write_pose_to_rosbag)
 		# rospy.sleep(5)
 
-		self.act.send_goal_and_wait(goal)
-		self.sub_pose.unregister()
-		rospy.sleep(10)
+		# self.sub_pose.unregister()
+		# rospy.sleep(10)
 
-		tfbag.send_signal(subprocess.signal.SIGINT)
-		tf_reindex_command = 'rosbag reindex aerobot_tf_100w_'+str(desired_height)+'.bag.active'
-		tfbag = subprocess.Popen(tf_reindex_command, stdin=subprocess.PIPE, shell=True,
-		 cwd='/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/src')
-		self.bag.close()
+		# tfbag.send_signal(subprocess.signal.SIGINT)
+		# tf_reindex_command = 'rosbag reindex aerobot_tf_100w_'+str(desired_height)+'.bag.active'
+		# tfbag = subprocess.Popen(tf_reindex_command, stdin=subprocess.PIPE, shell=True,
+		#  cwd='/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/src')
+		# self.bag.close()
 
 
 	def adapt(self, trajectory, goal_, time = 0.5):
@@ -201,7 +205,10 @@ class Robbie:
 
 		goal.trajectory.header.stamp = rospy.Time.now()
 
-		self.act.send_goal_and_wait(goal)
+		if self.act.send_goal_and_wait(goal) == 4:
+			return 'SUCCEEDED'
+		return 'LOST'
+
 
 	def extract_transition_trajectory(self, trajectory_, current_state, goal):
 
@@ -214,14 +221,17 @@ class Robbie:
 
 		current_state = trajectory[0].index
 
-		print [current_state]
+		# print [current_state]
 
 		if goal == 'N':
 			trajectory = trajectory_[current_state::]
 			return trajectory
+		# end = len(trajectory)
+		trajectory = trajectory_[current_state::]
+		return trajectory[::-1]
 
-		trajectory = trajectory_[::-1]
-		return trajectory
+
+		# trajectory = trajectory_[::-1]
 
 	def locomote_shank(self, wheel_frame, goal):
 		done=True
@@ -241,6 +251,7 @@ class Robbie:
 					done = False
 			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 				continue
+		return 'SUCCEEDED'
 
 	def locomote_lhm(self, wheel_frame, goal):
 		done=True
@@ -250,7 +261,10 @@ class Robbie:
 				linear = 0.5 * math.sqrt(trans[0] ** 2 + trans[1] ** 2)
 				cmd = geometry_msgs.msg.Twist()
 				cmd.linear.x = linear
-				cmd.angular.z = 4*math.atan2(trans[1], trans[0])
+				angular = 4*math.atan2(trans[1], trans[0])
+				if abs(angular) > 1:
+					angular = math.sqrt(angular)
+				cmd.angular.z = angular
 				self.cmd_vel_lhm.publish(cmd)
 				# angular = 4 * math.atan2(trans[1], trans[0])
 
@@ -258,6 +272,7 @@ class Robbie:
 					done = False
 			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 				continue
+		return 'SUCCEEDED'
 
 	def locomote_lhm_shank(self, wheel_frame, goal):
 		done=False
@@ -267,7 +282,10 @@ class Robbie:
 				linear = 0.5* math.sqrt(trans[0] ** 2 + trans[1] ** 2)
 				cmd = geometry_msgs.msg.Twist()
 				cmd.linear.x = linear
-				cmd.angular.z = 4*math.atan2(trans[1], trans[0])
+				angular = 4*math.atan2(trans[1], trans[0])
+				if abs(angular) > 1:
+					angular = math.sqrt(angular)
+				cmd.angular.z = angular
 				self.cmd_vel_lhm.publish(cmd)
 				self.cmd_vel.publish(cmd)
 				# angular = 4 * math.atan2(trans[1], trans[0])
@@ -276,6 +294,7 @@ class Robbie:
 					done = True
 			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 				continue
+		return 'SUCCEEDED'
 
 
 	def conjugate(self, a):
@@ -343,11 +362,13 @@ class Robbie:
 			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 				print 'oops!'
 				continue
+		return 'SUCCEEDED'
 
 	def stop(self):
 		cmd = geometry_msgs.msg.Twist()
 		self.cmd_vel.publish(cmd)
 		self.cmd_vel_lhm.publish(cmd)
+		return 'SUCCEEDED'
 
 
 
@@ -355,7 +376,7 @@ def main():
 	rospy.init_node('stand_controller')
 	rospy.loginfo("Trajectory initiated")
 	robot = Robbie()
-	robot.start(time = 2)
+	# robot.start(time = 2)
 
 	#crevice crossing
 	# robot.rotate('shank_footprint','shank_goal_crevice',0)
@@ -381,20 +402,21 @@ def main():
 
 	# step climbing
 	# robot.rotate('shank_footprint','goal_1', 0)
-	# robot.locomote_shank('shank_footprint', 'goal_1')
-	# robot.stop()
-	# robot.adapt(robot.stage_A1, time = 0.4, goal_ = 'N')
-	# robot.adapt(robot.stage_A2, time = 0.4, goal_ = 'N')
-	# robot.adapt(robot.stage_A3, time = 0.3, goal_ = 'N')
-	# robot.locomote_lhm_shank('shank_footprint', 'goal_2')
-	# robot.stop()
-	# robot.adapt(robot.stage_C1, time = 0.2, goal_ = 'N')
-	# robot.locomote_lhm_shank('shank_footprint', 'goal_3')
-	# robot.stop()
-	# robot.adapt(robot.stage_C2, time = 0.5, goal_ = 'N')
-	# robot.adapt(robot.stage_C3, time = 1, goal_ = 'N')
-	# robot.stop()
-	# robot.rotate('shank_footprint','goal_3',0)
+	rospy.loginfo(robot.start(time = 2))
+	rospy.loginfo('%s', robot.locomote_shank('shank_footprint', 'goal_1'))
+	rospy.loginfo('%s',robot.stop())
+	rospy.loginfo('%s',robot.adapt(robot.stage_A1, time = 1, goal_ = 'N'))
+	rospy.loginfo('%s',robot.adapt(robot.stage_A2, time = 1, goal_ = 'N'))
+	rospy.loginfo('%s',robot.adapt(robot.stage_A3, time = 1, goal_ = 'N'))
+	rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_2'))
+	rospy.loginfo('%s',robot.stop())
+	rospy.loginfo('%s',robot.adapt(robot.stage_C1, time = 1, goal_ = 'N'))
+	rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_3'))
+	rospy.loginfo('%s',robot.stop())
+	rospy.loginfo('%s',robot.adapt(robot.stage_C2, time = 1, goal_ = 'N'))
+	rospy.loginfo('%s',robot.adapt(robot.stage_C3, time = 1, goal_ = 'N'))
+	rospy.loginfo('%s',robot.stop())
+	## robot.rotate('shank_footprint','goal_3',0)
 
 	
 
