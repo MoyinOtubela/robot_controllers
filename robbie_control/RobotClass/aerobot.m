@@ -14,6 +14,7 @@ classdef aerobot< config_robot
         shank_height = 0;
         lhm_height;
         shank_rotation = 0;
+        shank_distance = 0;
     end
 
     methods(Abstract, Access = protected)
@@ -161,6 +162,7 @@ classdef aerobot< config_robot
             % lower body
             shank_footprint = obj.A0;
             shank_link = obj.A0*obj.A1;
+            % shank_link = obj.A0*obj.A1*obj.DH(-obj.shank_distance,0,0,-pi/2)*obj.DH(0,0,0,-pi/2);
             stab_joint = shank_link*obj.A2*obj.A3;
             stab_wheel = stab_joint*obj.A4*obj.A5;
             knee_joint = shank_link*obj.A2*obj.A6;
@@ -278,6 +280,7 @@ classdef aerobot< config_robot
             obj.h10 = plot3([obj.joint_locations(9, 1); obj.joint_locations(11, 1)], [obj.joint_locations(9, 2); obj.joint_locations(11, 2)], [obj.joint_locations(9, 3); obj.joint_locations(11, 3)],'r', 'LineWidth', 3);
             obj.h11 = plot3([obj.joint_locations(11, 1); obj.joint_locations(13, 1)], [obj.joint_locations(11, 2); obj.joint_locations(13, 2)], [obj.joint_locations(11, 3); obj.joint_locations(13, 3)],'b', 'LineWidth', 3);
             % plot wheelsb
+
             obj.h12 = plotCircle3D([obj.joint_locations(14, 1), obj.joint_locations(14, 2),obj.joint_locations(14, 3)],[1 0 0], obj.drive_wheel_rad,'g');
             obj.h13 = plotCircle3D([obj.joint_locations(15, 1), obj.joint_locations(15, 2),obj.joint_locations(15, 3)],[1 0 0], obj.drive_wheel_rad,'g');
             obj.h14 = plotCircle3D([obj.joint_locations(4, 1), obj.joint_locations(4, 2),obj.joint_locations(4, 3)],[1 0 0], obj.stab_wheel_rad,'g');

@@ -217,7 +217,7 @@ class Robbie:
 	def locomote_shank(self, wheel_frame, goal, time = 2):
 		done=False
 		start = rospy.Time.now()
-		while(done and not rospy.is_shutdown()):
+		while(not done and not rospy.is_shutdown()):
 			try:
 				if (rospy.Time.now().to_sec() - start.to_sec()) > time:
 					rospy.logwarn(rospy.Time.now().to_sec() - start.to_sec())
@@ -244,7 +244,7 @@ class Robbie:
 				# angular = 4 * math.atan2(trans[1], trans[0])
 
 				if math.sqrt(trans[0] ** 2 + trans[1] ** 2) < 0.01 and (abs(self.angle_turned(rot)) < 0.1):
-					done = False
+					done = True
 			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 				continue
 		return 'SUCCEEDED'

@@ -9,8 +9,10 @@
 
   <node name="contact_publisher" pkg="robbie_stability" type="robbie_contact_ex" respawn="false" output="screen"/>
 
-  <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
     args="-O $(arg rosbag_dir)/crevice_crossing.bag /robbie/ssm /robbie/ssm_delta /tf /robbie/whole_body_controller/state"/>
+ -->  <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/step_climbing.bag /robbie/ssm /robbie/ssm_delta /tf /robbie/whole_body_controller/state"/>
 
 </launch>
 

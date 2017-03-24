@@ -68,7 +68,8 @@ classdef aerobot_analysis_2
 			end
 
 			figure, plot(time_1, ssm), hold on, 
-			plot(time_2, ssm_delta), legend('ssm', 'ssm\_delta'), grid on, title('Stability Analysis (topic)'), xlabel('time (s)'), ylabel('');
+			plot(time_2, ssm_delta), legend('ssm', 'ssm\_delta'), grid on, title('Stability Analysis (topic)'), xlabel('time (s)'), ylabel(''), ylim([0 0.16])
+;
 			hold off
 			result.ssm = ssm;
 			result.ssm_delta = ssm_delta;
@@ -98,7 +99,6 @@ classdef aerobot_analysis_2
 
 			figure, plot(time, joints), 
 			grid on, title('Joint positions vs Time'), xlabel('time (s)'), ylabel('joint position'), legend('stabilser','thigh','hip','lhm','left shoulder','right shoulder','left elbow','right elbow');
-			
 			hold off
 		end
 
@@ -202,7 +202,7 @@ classdef aerobot_analysis_2
 			contact = [];
 
 			for i = [support.translation]
-				contact = [contact; (abs(i(3) - wheel_radius - obj.ground(1)) <= 0.01 || abs(i(3) - wheel_radius - obj.ground(2)) <= 0.01)];
+				contact = [contact; (abs(i(3) - wheel_radius - obj.ground(1)) <= 0.005 || abs(i(3) - wheel_radius - obj.ground(2)) <= 0.005)];
 			end
 
 		end

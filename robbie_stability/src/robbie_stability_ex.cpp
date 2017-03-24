@@ -327,6 +327,10 @@ private:
 			pub_ssm.publish(msg);
 			return;
 		}
+		else{
+			// msg.data = 0;
+			// msg.opt.data = 1
+		}
 
 	}
 

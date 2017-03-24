@@ -262,8 +262,8 @@ class Robbie:
 				cmd = geometry_msgs.msg.Twist()
 				cmd.linear.x = linear
 				angular = 4*math.atan2(trans[1], trans[0])
-				if abs(angular) > 1:
-					angular = math.sqrt(angular)
+				# if abs(angular) > 1:
+				# 	angular = math.sqrt(angular)
 				cmd.angular.z = angular
 				self.cmd_vel_lhm.publish(cmd)
 				# angular = 4 * math.atan2(trans[1], trans[0])
@@ -283,8 +283,8 @@ class Robbie:
 				cmd = geometry_msgs.msg.Twist()
 				cmd.linear.x = linear
 				angular = 4*math.atan2(trans[1], trans[0])
-				if abs(angular) > 1:
-					angular = math.sqrt(angular)
+				# if abs(angular) > 1:
+				# 	angular = math.sqrt(angular)
 				cmd.angular.z = angular
 				self.cmd_vel_lhm.publish(cmd)
 				self.cmd_vel.publish(cmd)
@@ -376,25 +376,28 @@ def main():
 	rospy.init_node('stand_controller')
 	rospy.loginfo("Trajectory initiated")
 	robot = Robbie()
-	# robot.start(time = 2)
-
+# 
 	#crevice crossing
 	# robot.rotate('shank_footprint','shank_goal_crevice',0)
-	# robot.locomote_shank('shank_footprint', 'shank_goal_crevice')
-	# robot.stop()
-	# robot.adapt(robot.stage_A1, time = 0.4, goal_ = 'N')
-	# robot.adapt(robot.stage_A2, time = 0.4, goal_ = 'N')
-	# robot.adapt(robot.stage_A3, time = 0.3, goal_ = 'N')
-	# robot.locomote_lhm_shank('shank_footprint', 'crevice_goal')
-	# robot.stop()
+	rospy.loginfo('MODE A DEFAULT: %s',robot.start(time = 2)) # MODE A DEFAULT
+	rospy.loginfo('MODE A NAVIGATE: %s',robot.locomote_shank('shank_footprint', 'shank_goal_crevice')) # MODE A NAVIGATE
+	rospy.loginfo('MODE A NAVIGATE STOP: %s',robot.stop()) #MODE A NAVIGATE
+	rospy.loginfo('MODE D TRANSFORM 1: %s',robot.adapt(robot.stage_A1, time = 0.8, goal_ = 'N')) #MODE D 
+	rospy.loginfo('MODE D TRANSFORM 2: %s',robot.adapt(robot.stage_A2, time = 0.8, goal_ = 'N')) # MODE D
+	rospy.loginfo('MODE D TRANSFORM 3: %s',robot.adapt(robot.stage_A3, time = 0.8, goal_ = 'N')) # MODE D -> C
+	rospy.loginfo('MODE C NAVIGATE: %s',robot.locomote_lhm_shank('shank_footprint', 'crevice_goal')) # MODE C NAVIGATE 
+	rospy.loginfo('MODE C NAVIGATE STOP: %s',robot.stop())
+	# rospy.loginfo('MODE D TRANSFORM 2: %s', # MODE C NAVIGATE
 
-	# robot.adapt(robot.stage_B1, time=0.5, goal_ = 'N')
-	# robot.adapt(robot.stage_B2, time=0.5, goal_ = 'N')
-	# robot.locomote_lhm('shank_footprint', 'crevice_goal_2')
-	# robot.stop()
-	# robot.adapt(robot.stage_B3, time=0.3, goal_ = 'N')
-	# robot.adapt(robot.stage_B4, time=0.5, goal_ = 'N')
-	# robot.start(time = 1)
+	rospy.loginfo('MODE B CLIMB: %s',robot.adapt(robot.stage_B1, time=1, goal_ = 'N')) #MODE B -> CLIMB
+	rospy.loginfo('MODE B CLIMB 2: %s',robot.adapt(robot.stage_B2, time=0.2, goal_ = 'N')) # MODE B -> CLIMB
+	rospy.loginfo('MODE B NAVIGATE: %s',robot.locomote_lhm('shank_footprint', 'crevice_goal_2')) # MODE B NAVIGATE
+	rospy.loginfo('MODE B NAVIGATE STOP: %s',robot.stop())
+	rospy.loginfo('MODE B CLIMB 3: %s',robot.adapt(robot.stage_B3, time=0.3, goal_ = 'N')) # MODE B CLIMB
+	# robot.locomote_lhm_shank('shank_footprint', 'crevice_goal_2')
+	rospy.loginfo('MODE A CLIMB: %s',robot.adapt(robot.stage_B4, time=0.5, goal_ = 'N')) #MODE A CLIMB
+
+	rospy.loginfo('MODE A DEFAULT: %s',robot.start(time = 1)) # MODE A CLIMB
 	# robot.stop()
 
 	# robot.adapt()
@@ -402,20 +405,20 @@ def main():
 
 	# step climbing
 	# robot.rotate('shank_footprint','goal_1', 0)
-	rospy.loginfo(robot.start(time = 2))
-	rospy.loginfo('%s', robot.locomote_shank('shank_footprint', 'goal_1'))
-	rospy.loginfo('%s',robot.stop())
-	rospy.loginfo('%s',robot.adapt(robot.stage_A1, time = 1, goal_ = 'N'))
-	rospy.loginfo('%s',robot.adapt(robot.stage_A2, time = 1, goal_ = 'N'))
-	rospy.loginfo('%s',robot.adapt(robot.stage_A3, time = 1, goal_ = 'N'))
-	rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_2'))
-	rospy.loginfo('%s',robot.stop())
-	rospy.loginfo('%s',robot.adapt(robot.stage_C1, time = 1, goal_ = 'N'))
-	rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_3'))
-	rospy.loginfo('%s',robot.stop())
-	rospy.loginfo('%s',robot.adapt(robot.stage_C2, time = 1, goal_ = 'N'))
-	rospy.loginfo('%s',robot.adapt(robot.stage_C3, time = 1, goal_ = 'N'))
-	rospy.loginfo('%s',robot.stop())
+	# rospy.loginfo(robot.start(time = 2))
+	# rospy.loginfo('%s', robot.locomote_shank('shank_footprint', 'goal_1'))
+	# rospy.loginfo('%s',robot.stop())
+	# rospy.loginfo('%s',robot.adapt(robot.stage_A1, time = 1, goal_ = 'N'))
+	# rospy.loginfo('%s',robot.adapt(robot.stage_A2, time = 1, goal_ = 'N'))
+	# rospy.loginfo('%s',robot.adapt(robot.stage_A3, time = 1, goal_ = 'N'))
+	# rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_2'))
+	# rospy.loginfo('%s',robot.stop())
+	# rospy.loginfo('%s',robot.adapt(robot.stage_C1, time = 1, goal_ = 'N'))
+	# rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_3'))
+	# rospy.loginfo('%s',robot.stop())
+	# rospy.loginfo('%s',robot.adapt(robot.stage_C2, time = 1, goal_ = 'N'))
+	# rospy.loginfo('%s',robot.adapt(robot.stage_C3, time = 1, goal_ = 'N'))
+	# rospy.loginfo('%s',robot.stop())
 	## robot.rotate('shank_footprint','goal_3',0)
 
 	

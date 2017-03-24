@@ -18,12 +18,13 @@ x0 = [-0.5389, 0.0948, -0.0163, 0.15, -0.7909, -0.7909, 0, 0];
 %          0
 
 obj = LookupTableGenerator();
-obj.shank_rotation = -0.17295;
+% obj.shank_rotation = -0.17295;
 % obj.shank_rotation = -0.5;
 % obj.shank_rotation = 0;
-obj.stab_height = 0.1;
+obj.stab_height = 0;
 obj.configure(x0);
 obj.refresh();
+
 
 	% x0 = [1, 0.1, 0.7, 0, -0.7924, -0.7924, 0, 0]
 
