@@ -1,3 +1,5 @@
+std_msgs/Header header
+
 bool shank
 bool lhm
 bool stabilizer

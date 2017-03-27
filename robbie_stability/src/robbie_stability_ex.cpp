@@ -226,9 +226,12 @@ private:
 				com.point.y+=tf_com.point.y*0.25;
 				com.point.z+=tf_com.point.z*0.25;
 				listener.transformPoint("odom", stab_link_msg, tf_com);
-				com.point.x+=tf_com.point.x*0.04625;
-				com.point.y+=tf_com.point.y*0.04625;
-				com.point.z+=tf_com.point.z*0.04625;
+				com.point.x+=tf_com.point.x*1;
+				com.point.y+=tf_com.point.y*1;
+				com.point.z+=tf_com.point.z*1;
+				// com.point.x+=tf_com.point.x*0.04625;
+				// com.point.y+=tf_com.point.y*0.04625;
+				// com.point.z+=tf_com.point.z*0.04625;
 				listener.transformPoint("odom", stab_wheel_msg, tf_com);
 				com.point.x+=tf_com.point.x*0.75;
 				com.point.y+=tf_com.point.y*0.75;

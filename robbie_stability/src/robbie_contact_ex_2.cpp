@@ -5,6 +5,8 @@
 #include <robbie_stability/Contact.h>
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
+#include <message_filters/sync_policies/exact_time.h>
 
 
 namespace ros{
@@ -30,7 +32,7 @@ void callback(const ContactsState& stab, const ContactsState& left_wheel, const 
 	}
 	else{
 		stabilizer_count+=1;
-		if (stabilizer_count>5){
+		if (stabilizer_count>40){
 			contact_msg.stabilizer = false;
 		}
 	}
@@ -44,7 +46,7 @@ void callback(const ContactsState& stab, const ContactsState& left_wheel, const 
 	}
 	else{
 		shank_count+=1;
-		if (shank_count>5){
+		if (shank_count>40){
 			contact_msg.shank = false;
 		}
 	}
@@ -58,12 +60,13 @@ void callback(const ContactsState& stab, const ContactsState& left_wheel, const 
 	}
 	else{
 		lhm_count+=1;
-		if (lhm_count>5){
+		if (lhm_count>40){
 			contact_msg.lhm = false;
 		}
 	}
+	contact_msg.header.stamp = ros::Time::now();
 	pub_contact.publish(contact_msg);
-	rate->sleep();
+	// rate->sleep();
 
 }
 
@@ -78,8 +81,11 @@ int main(int argc, char** argv)
 	message_filters::Subscriber<ContactsState> right_wheel_sub(nh, "/robbie/contact/right_wheel",1);
 	message_filters::Subscriber<ContactsState> lhm_left_wheel_sub(nh, "/robbie/contact/lhm_left_wheel",1);
 	message_filters::Subscriber<ContactsState> lhm_right_wheel_sub(nh, "/robbie/contact/lhm_right_wheel",1);
-	rate.reset(new Rate(4));
-	TimeSynchronizer<ContactsState, ContactsState, ContactsState, ContactsState, ContactsState> sync(stab_sub, left_wheel_sub, right_wheel_sub, lhm_left_wheel_sub, lhm_right_wheel_sub,10);
+	typedef sync_policies::ExactTime<ContactsState,ContactsState,ContactsState,ContactsState,ContactsState> MySyncPolicy;
+
+	// rate.reset(new Rate(100));
+	Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), stab_sub, left_wheel_sub, right_wheel_sub, lhm_left_wheel_sub, lhm_right_wheel_sub);
+	// TimeSynchronizer<ContactsState, ContactsState, ContactsState, ContactsState, ContactsState> sync(stab_sub, left_wheel_sub, right_wheel_sub, lhm_left_wheel_sub, lhm_right_wheel_sub,10);
 	sync.registerCallback(&callback);
 	ros::spin();
 	return 0;

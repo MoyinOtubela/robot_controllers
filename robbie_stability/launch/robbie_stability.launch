@@ -1,18 +1,16 @@
 <launch>
 	
 
-  <node name="stability_publisher" pkg="robbie_stability" type="robbie_stability_ex" respawn="false" output="screen"/>
+  <!-- <node name="stability_publisher" pkg="robbie_stability" type="robbie_stability_ex" respawn="false" output="screen"/> -->
 
   <!-- <node name="height_publisher" pkg="robbie_auto" type="height_publisher" respawn="false" output="screen"/> -->
 
-  <arg name="rosbag_dir" value="/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/rosbags"/>
-
   <node name="contact_publisher" pkg="robbie_stability" type="robbie_contact_ex" respawn="false" output="screen"/>
 
-<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
-    args="-O $(arg rosbag_dir)/crevice_crossing.bag /robbie/ssm /robbie/ssm_delta /tf /robbie/whole_body_controller/state"/>
- -->  <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
-    args="-O $(arg rosbag_dir)/step_climbing.bag /robbie/ssm /robbie/ssm_delta /tf /robbie/whole_body_controller/state"/>
+  <node name="link_states_stamper" pkg="robbie_stability" type="robbie_linkstates_stamped" respawn="false" output="screen"/>
+
+  <node name="location_contact_synchronizer" pkg="robbie_stability" type="robbie_location_contact" respawn="false" output="screen"/>
+
 
 </launch>
 

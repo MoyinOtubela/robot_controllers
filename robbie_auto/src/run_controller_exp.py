@@ -52,13 +52,17 @@ class DEFAULT_MODE_A_STAND_SM(smach.State):
 
 
 class HEIGHT_ADJUST_HEIGHT_ADJUST_BEHAVIOR_STAND_SM(smach.State):
-	def __init__(self):
+	def __init__(self, robot):
 		smach.State.__init__(self,
 			outcomes = ['finish','fail']
 			)
+		self.robot = robot
+		self.desired_height = 1
 
 	def execute(self, userdata):
-		rospy.loginfo('Moving to default mode A position')
+		rospy.loginfo('MODE A HEIGHT ADJUST')
+		self.robot.adjust_height(self.desired_height)
+
 		return 'finish'
 
 
@@ -81,21 +85,21 @@ def height_cb(outcome_map):
 		return 'finish'
 	return 'finish'
 
-class HEIGHT_ADJUST_BEHAVIOR_STAND_SM(smach.concurrence.Concurrence):
-	def __init__(self):
-		smach.concurrence.Concurrence.__init__(self, outcomes = ['finish','fail'],
-			default_outcome='finish',
-			child_termination_cb = height_control,
-			outcome_cb = height_cb
-			# outcome_map={'finish':{
-			# 'height_adjust':'finish'
-			# }}
-			)
+# class HEIGHT_ADJUST_BEHAVIOR_STAND_SM(smach.concurrence.Concurrence):
+# 	def __init__(self, robot):
+# 		smach.concurrence.Concurrence.__init__(self, outcomes = ['finish','fail'],
+# 			default_outcome='finish',
+# 			child_termination_cb = height_control,
+# 			outcome_cb = height_cb
+# 			# outcome_map={'finish':{
+# 			# 'height_adjust':'finish'
+# 			# }}
+# 			)
 
-		self.open()
-		self.add('keep_position', dummy())
-		self.add('height_adjust', dummy())
-		self.close()
+# 		self.open()
+# 		self.add('keep_position', dummy())
+# 		self.add('height_adjust', 
+# 		self.close()
 
 class DELIBERATOR_STAND_SM(smach.State):
 	def __init__(self):
@@ -112,12 +116,13 @@ class DELIBERATOR_STAND_SM(smach.State):
 		return self.plan[self.iter]
 
 class STAND_SM(smach.state_machine.StateMachine):
-	def __init__(self):
+	def __init__(self, robot):
+
 		smach.state_machine.StateMachine.__init__(self, outcomes = ['finish','fail'])
 		self.open()
-		self.add('deliberator', DELIBERATOR_STAND_SM(),transitions={'mode_a':'mode_a','height_adjust_behavior':'height_adjust_behavior','finish':'finish','fail':'fail'})
-		self.add('height_adjust_behavior', HEIGHT_ADJUST_BEHAVIOR_STAND_SM(), transitions = {'finish':'deliberator','fail':'fail'})
-		self.add('mode_a', MODE_A_STAND_SM(), transitions = {'finish':'deliberator','fail':'fail'})
+		# self.add('deliberator', DELIBERATOR_STAND_SM(),transitions={'mode_a':'mode_a','height_adjust_behavior':'height_adjust_behavior','finish':'finish','fail':'fail'})
+		self.add('height_adjust', HEIGHT_ADJUST_HEIGHT_ADJUST_BEHAVIOR_STAND_SM(robot), transitions = {'finish':'finish','fail':'fail'})
+		# self.add('mode_a', MODE_A_STAND_SM(), transitions = {'finish':'deliberator','fail':'fail'})
 		self.close()
 ##########################		STAND 		##########################################
 
@@ -132,17 +137,21 @@ class DEFAULT_MODE_A_CREVICE_CROSS(smach.State):
 			output_keys=['status']
 			)
 		self.robot = robot
-		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		self.contact = []
 		self.obstacle_height = 0.2
 		self.r = rospy.Rate(5)
 
 	def callback(self, msg):
 		self.contact = msg.stabilizer and msg.shank and (abs(msg.shank_location.z - self.obstacle_height) < 0.05) and (abs(msg.stabilizer_location.z - self.obstacle_height) < 0.05)
+		# if self.contact == True:
+		# 	rospy.loginfo('In contact')
+		# else:
+		# 	rospy.logwarn('Not in contact')
 		self.r.sleep()
 
 	def execute(self, userdata):
 		rospy.loginfo('Going into default position in MODE A')
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		while self.contact == []:
 			rospy.loginfo('waiting for topic')
 		if self.robot.start(time=2)=='SUCCEEDED' and self.contact:
@@ -160,37 +169,42 @@ class CLIMB_MODE_A_CREVICE_CROSS(smach.State):
 			output_keys=['status']
 			)
 		self.robot = robot
-		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		self.contact = []
 		self.obstacle_height = 0.2
 		self.r = rospy.Rate(5)
 
 	def callback(self, msg):
 		self.contact = msg.stabilizer and msg.shank and (abs(msg.shank_location.z - self.obstacle_height) < 0.05) and (abs(msg.stabilizer_location.z - self.obstacle_height) < 0.05)
+		# if self.contact == True:
+		# 	rospy.loginfo('In contact')
+		# else:
+		# 	rospy.logwarn('Not in contact')
 		self.r.sleep()
 
 	def execute(self, userdata):
 		rospy.loginfo('Securing conquered step!')
+		self.sub  = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		while self.contact == []:
 			rospy.loginfo('waiting for topic')
-		if self.robot.adapt(self.robot.stage_B3, time=0.3, goal_='N')=='SUCCEEDED' and self.contact:
+		# if self.robot.adapt(self.robot.stage_B3, time=0.3, goal_='N')=='SUCCEEDED' and self.contact:
+		# 	userdata.status = 'SUCCEEDED'
+		# 	self.sub.unregister()
+		# else:
+		# 	userdata.status = 'LOST'
+		# 	self.sub.unregister()
+		# 	return 'finish'
+		if self.robot.adapt(self.robot.stage_B4, time=0.5, goal_='N')=='SUCCEEDED' and self.contact:
 			userdata.status = 'SUCCEEDED'
 			self.sub.unregister()
 		else:
 			userdata.status = 'LOST'
-			self.sub.unregister()
-			return 'finish'
-		if self.robot.adapt(self.robot.stage_B4, time=0.3, goal_='N')=='SUCCEEDED' and self.contact:
+			# return 'finish'
+		if self.robot.start(time=2)=='SUCCEEDED':
 			userdata.status = 'SUCCEEDED'
 			self.sub.unregister()
 		else:
 			userdata.status = 'LOST'
-			return 'finish'
-		if self.robot.start(time=2)=='SUCCEEDED' and self.contact:
-			userdata.status = 'SUCCEEDED'
-			self.sub.unregister()
-		else:
-			userdata.status = 'LOST'
+		self.sub.unregister()
 		return 'finish'
 
 class NAVIGATE_MODE_A_CREVICE_CROSS(smach.State):
@@ -223,7 +237,6 @@ class CLIMB_MODE_B_CREVICE_CROSS(smach.State):
 			output_keys=['status']
 			)
 		self.robot = robot
-		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		self.contact = []
 		self.obstacle_height = 0.2
 		self.r = rospy.Rate(5)
@@ -231,20 +244,26 @@ class CLIMB_MODE_B_CREVICE_CROSS(smach.State):
 
 	def callback(self, msg):
 		self.contact = msg.lhm and msg.stabilizer and (abs(msg.stabilizer_location.z - self.obstacle_height) < 0.05) and (abs(msg.lhm_location.z-self.obstacle_height) < 0.05)
+		# if self.contact==True:
+		# 	rospy.loginfo('In contact')
+		# else:
+		# 	rospy.logwarn('Not in contact')
 		self.r.sleep()
 
 	def execute(self, userdata):
 		rospy.loginfo('Securing conquered step!')
 		self.iter +=1
-		# if self.iter ==1:
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
+
+		if self.iter ==1:
 			while self.contact == []:
 				rospy.loginfo('waiting for topic')
 			if self.robot.adapt(self.robot.stage_B1, time=0.3, goal_='N')=='SUCCEEDED':
 				userdata.status = 'SUCCEEDED'
-				self.sub.unregister()
+				# self.sub.unregister()
 			else:
 				userdata.status = 'LOST'
-				self.sub.unregister()
+				sub.unregister()
 				return 'finish'
 			if self.robot.adapt(self.robot.stage_B2, time=0.2, goal_='N')=='SUCCEEDED' and self.contact:
 				userdata.status = 'SUCCEEDED'
@@ -253,14 +272,14 @@ class CLIMB_MODE_B_CREVICE_CROSS(smach.State):
 				userdata.status = 'LOST'
 				self.sub.unregister()
 				return 'finish'
-		# if self.iter==2:
-			# if self.robot.adapt(self.robot.stage_B3, time=0.3, goal_='N')=='SUCCEEDED':
-			# 	userdata.status = 'SUCCEEDED'
-			# 	self.sub.unregister()
-			# else:
-			# 	userdata.status = 'LOST'
-			# 	self.sub.unregister()
-			# 	return 'finish'
+		if self.iter==2:
+			if self.robot.adapt(self.robot.stage_B3, time=0.3, goal_='N')=='SUCCEEDED' and self.contact:
+				userdata.status = 'SUCCEEDED'
+				self.sub.unregister()
+			else:
+				userdata.status = 'LOST'
+				self.sub.unregister()
+				return 'finish'
 		return 'finish'
 
 class NAVIGATE_MODE_B_CREVICE_CROSS(smach.State):
@@ -275,10 +294,10 @@ class NAVIGATE_MODE_B_CREVICE_CROSS(smach.State):
 		rospy.loginfo('Going into default position in MODE A')
 		if self.robot.locomote_lhm_shank('shank_footprint', 'crevice_goal_2', time=20)=='SUCCEEDED':
 			userdata.status = 'SUCCEEDED'
-			self.robot.stop()
 
 		else:
 			userdata.status = 'LOST'
+		self.robot.stop()
 		return 'finish'
 
 
@@ -289,16 +308,20 @@ class CLIMB_MODE_C_CREVICE_CROSS(smach.State):
 			output_keys=['status']
 			)
 		self.robot = robot
-		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		self.contact = []
 		self.obstacle_height = 0.2
 		self.r = rospy.Rate(5)
 
 	def callback(self, msg):
 		self.contact = msg.lhm and msg.shank and (abs(msg.shank_location.z - self.obstacle_height) < 0.05) and (abs(msg.lhm_location.z - self.obstacle_height) < 0.05)
+		# if self.contact==True:
+		# 	rospy.loginfo('In contact')
+		# else:
+		# 	rospy.logwarn('Not in contact')
 		self.r.sleep()
 
 	def execute(self, userdata):
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		while self.contact == []:
 			rospy.loginfo('waiting for topic')
 		rospy.loginfo('Mode C and preparing to climb!')
@@ -325,10 +348,11 @@ class NAVIGATE_MODE_C_CREVICE_CROSS(smach.State):
 	def execute(self, userdata):
 		rospy.loginfo('Going into default position in MODE A')
 		if self.robot.locomote_lhm_shank('shank_footprint', 'crevice_goal', time=20)=='SUCCEEDED':
-			self.robot.stop()
 			userdata.status = 'SUCCEEDED'
 		else:
 			userdata.status = 'LOST'
+		self.robot.stop()
+
 		return 'finish'
 
 
@@ -339,17 +363,22 @@ class TRANSFORM_MODE_D_CREVICE_CROSS(smach.State):
 			output_keys=['status']
 			)
 		self.robot = robot
-		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
+		# self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		self.contact = []
 		self.obstacle_height = 0.2
 		self.r = rospy.Rate(5)
 
 	def callback(self, msg):
 		self.contact = msg.lhm and msg.shank and (abs(msg.shank_location.z - self.obstacle_height) < 0.05) and (abs(msg.lhm_location.z - self.obstacle_height) <= 0.05)
+		# if self.contact==True:
+		# 	rospy.loginfo('In contact')
+		# else:
+		# 	rospy.logwarn('Not in contact')
 		self.r.sleep()
 
 	def execute(self, userdata):
 		rospy.loginfo('Securing conquered step!')
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		while self.contact == []:
 			rospy.loginfo('waiting for topic')
 		if self.robot.adapt(self.robot.stage_A1, time = 0.3, goal_ = 'N')=='SUCCEEDED':
@@ -362,7 +391,7 @@ class TRANSFORM_MODE_D_CREVICE_CROSS(smach.State):
 		else:
 			userdata.status = 'LOST'
 			return 'finish'
-		if self.robot.adapt(self.robot.stage_A3, time = 0.3, goal_ = 'N')=='SUCCEEDED' and self.contact:
+		if self.robot.adapt(self.robot.stage_A3, time = 0.3, goal_ = 'N')=='SUCCEEDED':
 			userdata.status = 'SUCCEEDED'
 			self.sub.unregister()
 		else:
@@ -407,29 +436,21 @@ class DELIBERATOR_MODE_A_CREVICE_CROSS(smach.State):
 
 		self.iter+=1
 
-		rospy.loginfo('STATE: %s %s', 'default', userdata.default_status)
-		rospy.loginfo('STATE: %s %s', 'navigate', userdata.navigate_status)
-		rospy.loginfo('STATE: %s %s', 'climb', userdata.climb_status)
+		rospy.loginfo('MODE A STATE: %s %s', 'default', userdata.default_status)
+		rospy.loginfo('MODE A STATE: %s %s', 'navigate', userdata.navigate_status)
+		rospy.loginfo('MODE A STATE: %s %s', 'climb', userdata.climb_status)
 
-		#can reverse trajectories here
-
-		if(self.iter==1 and not userdata.default_status=="SUCCEEDED"):
-			self.iter = -1
-			self.default_attempt+=1
-			userdata.default_status = 'RE-TRYING'
-
-		elif(self.iter==2 and not userdata.navigate_status=="SUCCEEDED"):
+		if self.iter == 1 and not userdata.default_status == 'SUCCEEDED':
+		    userdata.default_status = 'RE-TRYING'
 			self.iter = 0
-			self.robot.locomote_shank_recovery('shank_footprint', 'crevice_recovery_goal', time=100)
-			self.navigate_attempt+=1
+			return 'default'
+		elif self.iter == 2 and not userdata.navigate_status == 'SUCCEEDED':
 			userdata.navigate_status = 'RE-TRYING'
-			if self.navigate_attempt==attempt_threshold:
-				userdata.climb_status = 'FAILED'
-				self.robot.stop()
-				return 'fail'
-
-		elif(self.iter==3 and not userdata.climb_status=="SUCCEEDED"):
-			self.iter = 2
+			self.iter = 1
+			self.robot.locomote_shank_recovery('shank_footprint', 'crevice_recovery_goal', time=100)
+			return 'default'
+		elif(self.iter==4 and not userdata.climb_status=="SUCCEEDED"):
+			self.iter = 3
 			self.robot.adapt(self.robot.stage_B4, time=0.4, goal_='B')
 			self.robot.adapt(self.robot.stage_B3, time=0.4, goal_='B')
 			self.climb_attempt+=1
@@ -438,6 +459,41 @@ class DELIBERATOR_MODE_A_CREVICE_CROSS(smach.State):
 				userdata.climb_status = 'FAILED'
 				self.robot.stop()
 				return 'fail'
+
+		if userdata.climb_status == "SUCCEEDED" and userdata.navigate_status == "SUCCEEDED" and userdata.default_status == "SUCCEEDED":
+			userdata.status = "SUCCEEDED"
+		# if self.iter == 4 and not(userdata.climb_status == "SUCCEEDED" and userdata.navigate_status == "SUCCEEDED" and userdata.default_status == "SUCCEEDED"):
+		# 	userdata.status = "FAILED"
+		# 	return 'fail'
+
+		#can reverse trajectories here
+
+
+		# if(self.iter==1 and not userdata.default_status=="SUCCEEDED"):
+		# 	self.iter = -1
+		# 	self.default_attempt+=1
+		# 	userdata.default_status = 'RE-TRYING'
+
+		# elif(self.iter==2 and not userdata.navigate_status=="SUCCEEDED"):
+		# 	self.iter = 0
+		# 	self.robot.locomote_shank_recovery('shank_footprint', 'crevice_recovery_goal', time=100)
+		# 	self.navigate_attempt+=1
+		# 	userdata.navigate_status = 'RE-TRYING'
+		# 	if self.navigate_attempt==attempt_threshold:
+		# 		userdata.climb_status = 'FAILED'
+		# 		self.robot.stop()
+		# 		return 'fail'
+
+		# elif(self.iter==3 and not userdata.climb_status=="SUCCEEDED"):
+		# 	self.iter = 2
+		# 	# self.robot.adapt(self.robot.stage_B4, time=0.4, goal_='B')
+		# 	# self.robot.adapt(self.robot.stage_B3, time=0.4, goal_='B')
+		# 	self.climb_attempt+=1
+		# 	userdata.climb_status = 'RE-TRYING'
+		# 	if self.climb_attempt==attempt_threshold:
+		# 		userdata.climb_status = 'FAILED'
+		# 		self.robot.stop()
+		# 		return 'fail'
 
 		return self.plan[self.iter]
 
@@ -454,9 +510,15 @@ class DELIBERATOR_MODE_B_CREVICE_CROSS(smach.State):
 	def execute(self, userdata):
 		self.iter+=1
 		# rospy.logwarn(self.plan[self.iter])
-		rospy.loginfo('STATE: %s %s', 'navigate', userdata.navigate_status)
-		rospy.loginfo('STATE: %s %s', 'climb', userdata.climb_status)
+		rospy.loginfo('MODE B STATE: %s %s', 'navigate', userdata.navigate_status)
+		rospy.loginfo('MODE B STATE: %s %s', 'climb', userdata.climb_status)
+		if (userdata.navigate_status=='SUCCEEDED' and userdata.climb_status=='SUCCEEDED'):
+			userdata.status = 'SUCCEEDED'
+
 		# rospy.sleep(1)
+
+
+
 		return self.plan[self.iter]
 
 class DELIBERATOR_MODE_C_CREVICE_CROSS(smach.State):
@@ -471,8 +533,10 @@ class DELIBERATOR_MODE_C_CREVICE_CROSS(smach.State):
 
 	def execute(self, userdata):
 		self.iter+=1
-		rospy.loginfo('STATE: %s %s', 'navigate', userdata.navigate_status)
-		rospy.loginfo('STATE: %s %s', 'climb', userdata.climb_status)
+		rospy.loginfo('MODE C STATE: %s %s', 'navigate', userdata.navigate_status)
+		rospy.loginfo('MODE C STATE: %s %s', 'climb', userdata.climb_status)
+		if (userdata.navigate_status=='SUCCEEDED' and userdata.climb_status=='SUCCEEDED'):
+			userdata.status = 'SUCCEEDED'
 		# rospy.logwarn(self.plan[self.iter])
 
 		# rospy.sleep(1)
@@ -613,7 +677,6 @@ class DEFAULT_MODE_A_STEP_CLIMB(smach.State):
 			output_keys=['status']
 			)
 		self.robot = robot
-		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		self.contact = False
 		self.obstacle_height = 0.08
 
@@ -621,7 +684,10 @@ class DEFAULT_MODE_A_STEP_CLIMB(smach.State):
 		self.contact = msg.stabilizer and msg.shank and (abs(msg.shank_location.z) < 0.05) and (abs(msg.stabilizer_location.z) < 0.05)
 
 	def execute(self, userdata):
+		
 		rospy.loginfo('Going into default position in MODE A')
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
+
 		if self.robot.start(time=2)=='SUCCEEDED' and self.contact:
 			userdata.status = 'SUCCEEDED'
 			self.sub.unregister()
@@ -637,7 +703,6 @@ class CLIMB_MODE_A_STEP_CLIMB(smach.State):
 			output_keys=['status']
 			)
 		self.robot = robot
-		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		self.contact = False
 		self.obstacle_height = 0.08
 
@@ -647,6 +712,7 @@ class CLIMB_MODE_A_STEP_CLIMB(smach.State):
 
 	def execute(self, userdata):
 		rospy.loginfo('Securing conquered step!')
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		if self.robot.adapt(self.robot.stage_C2, time=1, goal_='N')=='SUCCEEDED' and self.contact:
 			userdata.status = 'SUCCEEDED'
 			self.sub.unregister()
@@ -701,6 +767,7 @@ class CLIMB_MODE_B_STEP_CLIMB(smach.State):
 
 	def execute(self, userdata):
 		rospy.loginfo('Securing conquered step!')
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		if self.robot.adapt(self.robot.stage_C1, time=1, goal_='N')=='SUCCEEDED' and self.contact:
 			userdata.status = 'SUCCEEDED'
 			self.sub.unregister()
@@ -736,7 +803,6 @@ class CLIMB_MODE_C_STEP_CLIMB(smach.State):
 			output_keys=['status']
 			)
 		self.robot = robot
-		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		self.contact = False
 		self.obstacle_height = 0.08
 
@@ -745,6 +811,7 @@ class CLIMB_MODE_C_STEP_CLIMB(smach.State):
 
 	def execute(self, userdata):
 		rospy.loginfo('Mode C and preparing to climb!')
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		if self.robot.adapt(self.robot.stage_A3, time = 1, goal_ = 'N')=='SUCCEEDED' and self.contact:
 			userdata.status = 'SUCCEEDED'
 			self.sub.unregister()
@@ -790,6 +857,7 @@ class TRANSFORM_MODE_D_STEP_CLIMB(smach.State):
 
 	def execute(self, userdata):
 		rospy.loginfo('Securing conquered step!')
+		self.sub = rospy.Subscriber("/robbie/contact", Contact, self.callback)
 		if self.robot.adapt(self.robot.stage_A1, time = 1, goal_ = 'N')=='SUCCEEDED':
 			userdata.status = 'SUCCEEDED'
 		else:
