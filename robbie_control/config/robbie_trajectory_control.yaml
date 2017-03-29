@@ -22,7 +22,7 @@ robbie:
     elbow_left_joint: {p: 100, i: 0.1, d: 10.0}
     elbow_right_joint: {p: 100, i: 0.1, d: 10.0}
     hip_joint: {p: 33000, i: 6.75, d: 1.688}
-    lhm_torso_joint: {p: 36000, i: 0.1, d: 1.625}
+    lhm_torso_joint: {p: 33000, i: 6.75, d: 1.688}
     stab_joint: {p: 36000, i: 6.5, d: 1.625}
     knee_joint: {p: 36000, i: 6.5, d: 1.625}
 

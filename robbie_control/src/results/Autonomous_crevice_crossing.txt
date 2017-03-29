@@ -1,0 +1,11 @@
+DEFAULT: 7.261 11.287
+Navigate to crevice: 11.287 18.842
+Extend LHM (mode D): 18.842 37.957
+Raise Stabilizer mode(C): 37.957 56.972
+Navigate (mode C): 56.972 66.203
+Lower stabilizer (mode C -> mode B): 66.203 85.217
+Raise shank to meet (mode B): 85.217 89.037
+Locomote until shank above platform: 89.037 96.322
+Lower shank to meet platform: 96.322 100.139
+Retract LHM: 100.139 105.845
+Back to Default: 105.845 106.848

@@ -11,7 +11,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   std_srvs
+  geometry_msgs
   tf
+  message_filters
 )
 
 ## System dependencies are found with CMake's conventions
@@ -53,6 +55,8 @@ find_package(gazebo REQUIRED)
  add_message_files(
    FILES
    Contact.msg
+   LinkStatesStamped.msg
+   ContactLinkStates.msg
 #   Message1.msg
 #   Message2.msg
  )
@@ -77,7 +81,14 @@ find_package(gazebo REQUIRED)
 #   gazebo_msgs#   geometry_msgs#   rosgraph_msgs#   
 #   std_msgs
 # )
-generate_messages()
+generate_messages(
+    DEPENDENCIES
+    std_msgs
+    geometry_msgs
+    gazebo_msgs
+)
+
+#generate_messages()
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -152,9 +163,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 ## Declare a C++ executable
 add_executable(robbie_stability_ex src/robbie_stability_ex.cpp)
 target_link_libraries(robbie_stability_ex ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
-add_executable(robbie_contact_ex src/robbie_contact_ex.cpp)
-target_link_libraries(robbie_contact_ex ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+#add_executable(robbie_contact_ex src/robbie_contact_ex.cpp)
+#target_link_libraries(robbie_contact_ex ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
+add_executable(robbie_contact_ex src/robbie_contact_ex_2.cpp)
+target_link_libraries(robbie_contact_ex ${catkin_LIBRARIES})
+
+add_executable(robbie_linkstates_stamped src/robbie_linkstates_stamped.cpp)
+target_link_libraries(robbie_linkstates_stamped ${catkin_LIBRARIES})
+
+add_executable(robbie_location_contact src/robbie_location_contact.cpp)
+target_link_libraries(robbie_location_contact ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

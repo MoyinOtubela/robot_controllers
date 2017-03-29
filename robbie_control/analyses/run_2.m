@@ -1,9 +1,13 @@
 close all;clear all;
 
-bag_name = 'step_climbing.bag'
+% bagfiles
+% bag_name = 'autonomous_step_climbing.bag'
+% bag_name = 'autonomous_crevice_crossing.bag'
+
+bag_name = 'manual_step_climbing.bag'
 % bag_name = 'crevice_crossing.bag'
 
-obj = aerobot_analysis_2(bag_name, 100);
+obj = aerobot_analysis_2(bag_name, 1000);
 % obj.ground = [0, 0.2];
 obj.ground = [0, 0.08];
 mats = obj.load_tree;

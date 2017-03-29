@@ -6,7 +6,8 @@ classdef aerobot_analysis_2
 		world_frame = 'odom';
 
         shank_mass = 7;
-        stab_mass = 0.04625;
+        stab_mass = 1;
+        % stab_mass = 0.04625;
         stab_wheel_mass = 0.75;
         thigh_mass = 2;
         torso_mass = 16;
@@ -68,7 +69,8 @@ classdef aerobot_analysis_2
 			end
 
 			figure, plot(time_1, ssm), hold on, 
-			plot(time_2, ssm_delta), legend('ssm', 'ssm\_delta'), grid on, title('Stability Analysis (topic)'), xlabel('time (s)'), ylabel('');
+			plot(time_2, ssm_delta), legend('ssm', 'ssm\_delta'), grid on, title('Stability Analysis (topic)'), xlabel('time (s)'), ylabel(''), ylim([0 0.2])
+;
 			hold off
 			result.ssm = ssm;
 			result.ssm_delta = ssm_delta;
@@ -98,7 +100,6 @@ classdef aerobot_analysis_2
 
 			figure, plot(time, joints), 
 			grid on, title('Joint positions vs Time'), xlabel('time (s)'), ylabel('joint position'), legend('stabilser','thigh','hip','lhm','left shoulder','right shoulder','left elbow','right elbow');
-			
 			hold off
 		end
 
@@ -202,7 +203,7 @@ classdef aerobot_analysis_2
 			contact = [];
 
 			for i = [support.translation]
-				contact = [contact; (abs(i(3) - wheel_radius - obj.ground(1)) <= 0.01 || abs(i(3) - wheel_radius - obj.ground(2)) <= 0.01)];
+				contact = [contact; (abs(i(3) - wheel_radius - obj.ground(1)) <= 0.05 || abs(i(3) - wheel_radius - obj.ground(2)) <= 0.05)];
 			end
 
 		end
@@ -293,10 +294,11 @@ classdef aerobot_analysis_2
 			stability.ssm = obj.ssm(com, supports, locations);
 			stability.ssm_delta = obj.ssm_delta(com, supports, locations);
 
-			times_ssm = linspace(time(1), time(end), length(stability.ssm));
-			times_ssm_delta = linspace(time(1), time(end), length(stability.ssm_delta));
-			figure, plot(times_ssm, stability.ssm), title('Stability analysis'), xlabel('time (s)'), ylabel(''), hold on, grid on,
-			plot(times_ssm_delta, stability.ssm_delta), legend('ssm','ssm\_delta')
+			% times_ssm = linspace(time(1), time(end), length(stability.ssm));
+			% times_ssm_delta = linspace(time(1), time(end), length(stability.ssm_delta));
+
+			figure, plot(stability.ssm), title('Stability analysis'), xlabel('time (s)'), ylabel(''), hold on, grid on,
+			plot(stability.ssm_delta), legend('ssm','ssm\_delta')
 			hold off
 
 		end
@@ -337,7 +339,6 @@ classdef aerobot_analysis_2
 					% stab  -> lower
 					d1 = sqrt(  ( locations.shank(1, i) - com(1, i) )^2  + ( locations.shank(2, i) - com(2, i) )^2 );
 					d2 = sqrt(  ( locations.stab(1, i) - com(1, i) )^2  + ( locations.stab(2, i) - com(2, i) )^2 );
-
 					if(d1<d2)
 						result = [result; d1];
 					else

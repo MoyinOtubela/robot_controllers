@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   smach
   message_generation
   tf
-  Eigen3
+  #Eigen3
   laser_geometry
   pcl_ros
 
@@ -154,7 +154,7 @@ add_executable(height_publisher src/height_publisher.cpp)
 target_link_libraries(height_publisher ${catkin_LIBRARIES})
 
 add_executable(laser_to_pointcloud src/laser_to_pointcloud.cpp)
-target_link_libraries(laser_to_pointcloud ${catkin_LIBRARIES})
+target_link_libraries(laser_to_pointcloud ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(kinect_processor src/kinect_processing.cpp)
 target_link_libraries(kinect_processor ${catkin_LIBRARIES})

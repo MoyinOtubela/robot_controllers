@@ -14,6 +14,7 @@ classdef aerobot< config_robot
         shank_height = 0;
         lhm_height;
         shank_rotation = 0;
+        shank_distance = 0;
     end
 
     methods(Abstract, Access = protected)
@@ -161,6 +162,7 @@ classdef aerobot< config_robot
             % lower body
             shank_footprint = obj.A0;
             shank_link = obj.A0*obj.A1;
+            % shank_link = obj.A0*obj.A1*obj.DH(-obj.shank_distance,0,0,-pi/2)*obj.DH(0,0,0,-pi/2);
             stab_joint = shank_link*obj.A2*obj.A3;
             stab_wheel = stab_joint*obj.A4*obj.A5;
             knee_joint = shank_link*obj.A2*obj.A6;
@@ -179,12 +181,31 @@ classdef aerobot< config_robot
             % lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A19*obj.A21;
 
             % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.03,0)*obj.DH(0,-pi/2,-0.05,0)*obj.DH(0,0,-obj.lhm_position,0);
+            % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.0,0)*obj.DH(0,-pi/2,-0.0,0)*obj.DH(0,0,-obj.lhm_position,0);
             lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.05,0)*obj.DH(0,-pi/2,-0.03,0)*obj.DH(0,0,-obj.lhm_position,0);
             % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.0,0)*obj.DH(0,-pi/2,-0.0,0)*obj.DH(0,0,-obj.lhm_position,0);
             lhm_height_offset = lhm_torso_link(3, 4);
 
+            z = camera_joint(3,4) - torso_link(3,4);
+            y = camera_joint(2,4) - torso_link(2,4);
+
+            obj.hip_monitor = pi - atan2(z,y);
+
             if (lhm_height_offset <= obj.lhm_wheel_rad)
-                obj.lhm_position = -(torso_link(3, 4) - 0.05 - obj.lhm_wheel_rad);
+                % lhm_torso_link(3, 4) = obj.lhm_wheel_rad;
+
+                % obj.lhm_position = -(torso_link(3, 4) - 0.05 - obj.lhm_wheel_rad);
+                % x = (torso_link(2, 4) - torso_link(2, 4)) - (lhm_torso_link(2, 4) - (torso_link(2, 4) ));
+                % y = (torso_link(3, 4)) - lhm_torso_link(3, 4);
+                % m = y/x;
+                % x_new = obj.lhm_wheel_rad/m;
+                % y_new
+                % disp(x)
+                % y = torso_link(3, 4) - obj.lhm_wheel_rad - 0.04;
+                % obj.lhm_position = -sqrt((x_new - torso_link(2, 4))^2 + (torso_link(3, 4))^2);
+                obj.lhm_position = -(torso_link(3, 4) - 0.05*sin(obj.hip_monitor) - obj.lhm_wheel_rad);
+                % obj.lhm_position = -(torso_link(3, 4) - 0 - obj.lhm_wheel_rad);
+                % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.05,0)*obj.DH(0,-pi/2,-0.03,0)*obj.DH(0,0,obj.lhm_position,0);
                 lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.05,0)*obj.DH(0,-pi/2,-0.03,0)*obj.DH(0,0,obj.lhm_position,0);
                 % lhm_torso_link = torso_link*obj.A9*obj.DH(0,pi/2,-0.0,0)*obj.DH(0,-pi/2,-0.0,0)*obj.DH(0,0,-(torso_link(3, 4) - 0.0 - obj.lhm_wheel_rad),0);
                 % lhm_torso_link = torso_link*obj.A9*obj.A20*obj.A19*obj.DH(0, 0, torso_link(3, 4) - 0.035 - obj.lhm_wheel_rad, 0);
@@ -195,10 +216,6 @@ classdef aerobot< config_robot
 
 
 
-            z = camera_joint(3,4) - torso_link(3,4);
-            y = camera_joint(2,4) - torso_link(2,4);
-
-            obj.hip_monitor = pi - atan2(z,y);
 
             % com_shank_footprint = shank_footprint*obj.DH(0.163037,0,0.159341,0)*obj.origin;
             com_shank_footprint = shank_link*obj.A2*obj.DH(0,0,0.1735,0)*obj.origin;
@@ -278,6 +295,7 @@ classdef aerobot< config_robot
             obj.h10 = plot3([obj.joint_locations(9, 1); obj.joint_locations(11, 1)], [obj.joint_locations(9, 2); obj.joint_locations(11, 2)], [obj.joint_locations(9, 3); obj.joint_locations(11, 3)],'r', 'LineWidth', 3);
             obj.h11 = plot3([obj.joint_locations(11, 1); obj.joint_locations(13, 1)], [obj.joint_locations(11, 2); obj.joint_locations(13, 2)], [obj.joint_locations(11, 3); obj.joint_locations(13, 3)],'b', 'LineWidth', 3);
             % plot wheelsb
+
             obj.h12 = plotCircle3D([obj.joint_locations(14, 1), obj.joint_locations(14, 2),obj.joint_locations(14, 3)],[1 0 0], obj.drive_wheel_rad,'g');
             obj.h13 = plotCircle3D([obj.joint_locations(15, 1), obj.joint_locations(15, 2),obj.joint_locations(15, 3)],[1 0 0], obj.drive_wheel_rad,'g');
             obj.h14 = plotCircle3D([obj.joint_locations(4, 1), obj.joint_locations(4, 2),obj.joint_locations(4, 3)],[1 0 0], obj.stab_wheel_rad,'g');

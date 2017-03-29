@@ -100,7 +100,8 @@ classdef config_robot < handle
 		shank_footprint;
 
         shank_mass = 7;
-        stab_mass = 0.04625;
+        % stab_mass = 0.04625;
+        stab_mass = 1;
         stab_wheel_mass = 0.75;
         thigh_mass = 2;
         torso_mass = 16;

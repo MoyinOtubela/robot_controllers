@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   smach
   message_generation
   tf
-  Eigen3
+  #Eigen3
   laser_geometry
   pcl_ros
 
@@ -57,6 +57,7 @@ add_definitions(-std=c++11)
  add_message_files(
    FILES
    Contact.msg
+   Script.msg
 #   Message1.msg
 #   Message2.msg
  )
