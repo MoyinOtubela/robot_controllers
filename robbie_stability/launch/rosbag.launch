@@ -1,0 +1,46 @@
+<launch>
+	
+  <arg name="rosbag_dir" value="/home/moyin/dev/autonomous_controllers/src/robot_controllers/robbie_control/rosbags"/>
+<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/autonomous_step_climbing.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+
+ -->
+<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/step_climbing.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ --><!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/height_adjust.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ -->
+
+<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/modeA.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ -->
+<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/modeB.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ -->
+<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/modeC.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+
+ -->  
+<!--  <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/modeD.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ -->
+
+<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/autonomous_crevice_crossing.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ -->  
+
+<!--   <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/manual_crevice_crossing.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ -->  
+ <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/manual_step_climbing.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+  
+<!--    <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/autonomous_step_climbing.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ -->
+<!--  <node pkg="rosbag" type="record" name="bag_recorder" output="screen"
+    args="-O $(arg rosbag_dir)/test_crevice_crossing.bag /robbie/LocationContact /robbie/whole_body_controller/state"/>
+ -->  
+</launch>
+
+

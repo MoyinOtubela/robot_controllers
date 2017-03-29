@@ -1,0 +1,15 @@
+robbie_stability/Contact contact
+geometry_msgs/Pose shank_footprint
+geometry_msgs/Pose thigh_link
+geometry_msgs/Pose torso_link
+geometry_msgs/Pose lhm_link
+geometry_msgs/Pose lhm_wheel_left_link 
+geometry_msgs/Pose lhm_wheel_right_link
+geometry_msgs/Pose shoulder_left_link
+geometry_msgs/Pose arm_left_link
+geometry_msgs/Pose shoulder_right_link
+geometry_msgs/Pose arm_right_link
+geometry_msgs/Pose stab_link
+geometry_msgs/Pose stab_wheel
+geometry_msgs/Pose wheel_left_link
+geometry_msgs/Pose wheel_right_link
