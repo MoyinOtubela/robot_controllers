@@ -1,0 +1,9 @@
+DEFAULT: 7.879 9.881
+DEFAULT: 9.881 16.696
+Extend LHM (mode D): 16.696 20.716
+Raise Stab (mode D -> C): 20.716 35.724
+Locomote until stab above next platform (mode C): 35.724 42.434
+Extend LHM, raise shank, lower stabilizer (mode B): 42.434 57.493
+Locomote until shank above platform (mode B): 57.493 63.545
+Retract LHM (mode A): 63.545 68.556
+Back to default (mode A): 68.556 75.569

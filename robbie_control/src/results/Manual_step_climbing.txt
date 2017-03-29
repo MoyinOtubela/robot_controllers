@@ -1,0 +1,9 @@
+DEFAULT: 72.019 74.036
+mode A navigate: 74.036 76.806
+Extend LHM: 76.806 80.81
+Mode D: 80.81 90.819
+Mode C: 90.819 95.823
+Navigate until stabilizer above step: 95.823 99.648
+Extend LHM further, raise shank: 99.648 107.657
+Navigate till shank on step: 107.657 120.261
+Back to default: 120.261 124.264

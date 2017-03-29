@@ -60,7 +60,7 @@ class Robbie:
 		self.workspaceA = scipy.io.loadmat(directory_A+'/lbel_waypoints')
 		self.stage_A1 = self.workspaceA['stage_1']
 		self.stage_A2 = self.workspaceA['stage_2']
-		self.stage_A3 = self.workspaceA['stage_3']
+		# self.stage_A3 = self.workspaceA['stage_3']
 		self.workspaceB = scipy.io.loadmat(directory_B+'/sdsu_waypoints')
 		self.stage_B1 = self.workspaceB['stage_1']
 		self.stage_B2 = self.workspaceB['stage_2']
@@ -254,7 +254,7 @@ class Robbie:
 				self.cmd_vel.publish(cmd)
 				# angular = 4 * math.atan2(trans[1], trans[0])
 
-				if trans[0] < 0.01:
+				if abs(trans[0]) < 0.01:
 					done = False
 			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 				continue
@@ -297,7 +297,26 @@ class Robbie:
 				self.cmd_vel.publish(cmd)
 				# angular = 4 * math.atan2(trans[1], trans[0])
 
-				if trans[0] < 0.01:
+				if abs(trans[0]) < 0.01:
+					done = True
+			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+				continue
+		return 'SUCCEEDED'
+	def locomote_lhm_shank_no_rotate(self, wheel_frame, goal):
+		done=False
+		while(not done and not rospy.is_shutdown()):
+			try:
+				(trans,rot) = self.listener.lookupTransform(wheel_frame, goal, rospy.Time(0))
+				linear = 0.5* math.sqrt(trans[0] ** 2 + trans[1] ** 2)
+				cmd = geometry_msgs.msg.Twist()
+				cmd.linear.x = linear
+				# cmd.angular.z = 1 * math.atan2(trans[1], trans[0])
+				self.cmd_vel.publish(cmd)
+				self.cmd_vel_lhm.publish(cmd)
+				# print trans[0]
+				# print math.sqrt(trans[0]**2 + trans[1]**2)
+				if trans[0] < 0.0209:
+				# if trans[0] < 0.01:
 					done = True
 			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 				continue
@@ -377,23 +396,25 @@ class Robbie:
 		self.cmd_vel_lhm.publish(cmd)
 		return 'SUCCEEDED'
 
-# class Task:
-# 	def __init__(self, task, start, end):
-# 		self.task = task
-# 		self.start = start
-# 		self.end = end
+class Task:
+	def __init__(self, task, start, end):
+		self.task = task
+		self.start = start
+		self.end = end
 
-# 	def getDict:
-# 		return dict(Tast=self.task, Start=)
+	def get(self):
+		return '{}: {} {}'.format(self.task, self.start, self.end)
+
+	def __repr__(self):
+		return '{}: {} {}'.format(self.task, self.start, self.end)
+
+	# def getDict:
+	# 	return dict(Tast=self.task, Start=)
 
 
 def main():
 	rospy.init_node('stand_controller')
 	rospy.loginfo("Trajectory initiated")
-    # mode_a_msg = robbie_auto.Script()
-    # mode_b_msg = robbie_auto.Script()
-    # mode_c_msg = robbie_auto.Script()
-    # mode_d_msg = robbie_auto.Script()
 
 	robot = Robbie()
 #
@@ -402,108 +423,236 @@ def main():
 	# rospy.loginfo(robot.start(time = 2))
 	# rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0, 0, 0, -0.2, 0, 0, 0, 0])) # MODE D
 
+    ################## Height adjustment #############################
+
 	# rospy.loginfo(robot.start(time = 2))
 	# robot.adjust_height(desired_height=1, time=0.2)
 	# robot.adjust_height(desired_height=0, time=0.2)
 
-	#crevice crossing
-	# robot.rotate('shank_footprint','shank_goal_crevice',0)
+	################## Autonomous crevice crossing #################
+	# time = rospy.Time.now().to_sec()
+	# rospy.loginfo(robot.start(time = 2))
 	# rospy.loginfo('MODE A DEFAULT: %s',robot.start(time = 2)) # MODE A DEFAULT
+	# task_1 = Task('DEFAULT', time, rospy.Time.now().to_sec())
 	# rospy.loginfo('MODE A NAVIGATE: %s',robot.locomote_shank('shank_footprint', 'shank_goal_crevice')) # MODE A NAVIGATE
 	# rospy.loginfo('MODE A NAVIGATE STOP: %s',robot.stop()) #MODE A NAVIGATE
+	# task_2 = Task('Navigate to crevice', task_1.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('MODE D TRANSFORM 1: %s',robot.adapt(robot.stage_A1, time = 1, goal_ = 'N')) #MODE D 
+	# task_3 = Task('Extend LHM (mode D)', task_2.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('MODE D TRANSFORM 2: %s',robot.adapt(robot.stage_A2, time = 1, goal_ = 'N')) # MODE D
-	# rospy.loginfo('MODE D TRANSFORM 3: %s',robot.adapt(robot.stage_A3, time = 1, goal_ = 'N')) # MODE D -> C
-	# rospy.loginfo('MODE C NAVIGATE STOP: %s',robot.stop())
+	# # rospy.loginfo('MODE D TRANSFORM 3: %s',robot.adapt(robot.stage_A3, time = 1, goal_ = 'N')) # MODE D -> C
+	# task_4 = Task('Raise Stabilizer mode(C)', task_3.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('MODE C NAVIGATE: %s',robot.locomote_lhm_shank('shank_footprint', 'crevice_goal')) # MODE C NAVIGATE 
 	# rospy.loginfo('MODE C NAVIGATE STOP: %s',robot.stop())
+	# task_5 = Task('Navigate (mode C)', task_4.end, rospy.Time.now().to_sec())
 
-	# rospy.loginfo('MODE B CLIMB: %s',robot.adapt(robot.stage_B1, time=0.2, goal_ = 'N')) #MODE B -> CLIMB
+	# rospy.loginfo('MODE B CLIMB: %s',robot.adapt(robot.stage_B1, time=1, goal_ = 'N')) #MODE B -> CLIMB
+	# task_6 = Task('Lower stabilizer (mode C -> mode B)', task_5.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('MODE B CLIMB 2: %s',robot.adapt(robot.stage_B2, time=0.2, goal_ = 'N')) # MODE B -> CLIMB
+	# task_7 = Task('Raise shank to meet (mode B)', task_6.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('MODE B NAVIGATE: %s',robot.locomote_lhm('shank_footprint', 'crevice_goal_2')) # MODE B NAVIGATE
 	# rospy.loginfo('MODE B NAVIGATE STOP: %s',robot.stop())
+	# task_8 = Task('Locomote until shank above platform', task_7.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('MODE B CLIMB 3: %s',robot.adapt(robot.stage_B3, time=0.2, goal_ = 'N')) # MODE B CLIMB
+	# task_9 = Task('Lower shank to meet platform', task_8.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('MODE A CLIMB: %s',robot.adapt(robot.stage_B4, time=0.3, goal_ = 'N')) #MODE A CLIMB
+	# task_10 = Task('Retract LHM', task_9.end, rospy.Time.now().to_sec())
 
 	# rospy.loginfo('MODE A DEFAULT: %s',robot.start(time = 1)) # MODE A CLIMB
+	# task_11 = Task('Back to Default', task_10.end, rospy.Time.now().to_sec())
 	# robot.stop()
+
+	# f = open('Autonomous_crevice_crossing.txt','w')
+	# f.write(task_1.get()+'\n')
+	# f.write(task_2.get()+'\n')
+	# f.write(task_3.get()+'\n')
+	# f.write(task_4.get()+'\n')
+	# f.write(task_5.get()+'\n')
+	# f.write(task_6.get()+'\n')
+	# f.write(task_7.get()+'\n')
+	# f.write(task_8.get()+'\n')
+	# f.write(task_9.get()+'\n')
+	# f.write(task_10.get()+'\n')
+	# f.write(task_11.get()+'\n')
+	# f.close()
 
 	# robot.adapt()
 
 
-	# step climbing
-	# robot.rotate('shank_footprint','goal_1', 0)
+	########### Autonomous step climbing #########################
+	# time = rospy.Time.now().to_sec()
 	# rospy.loginfo(robot.start(time = 2))
+	# task_1 = Task('DEFAULT', time, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s', robot.locomote_shank('shank_footprint', 'goal_1'))
 	# rospy.loginfo('%s',robot.stop())
+	# task_2 = Task('mode A navigate', task_1.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s',robot.adapt(robot.stage_A1, time = 0.8, goal_ = 'N'))
+	# task_3 = Task('Extend LHM (mode D)', task_2.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s',robot.adapt(robot.stage_A2, time = 0.8, goal_ = 'N'))
-	# rospy.loginfo('%s',robot.adapt(robot.stage_A3, time = 0.8, goal_ = 'N'))
+	# # rospy.loginfo('%s',robot.adapt(robot.stage_A3, time = 2, goal_ = 'N'))
+	# task_4 = Task('Mode C', task_3.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_2'))
 	# rospy.loginfo('%s',robot.stop())
+	# task_5 = Task('Navigate until stabilizer above step', task_4.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s',robot.adapt(robot.stage_C1, time = 0.8, goal_ = 'N'))
-	# # rospy.loginfo('%s',robot.stop())
+	# task_6 = Task('Place stabilizer on step', task_5.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s',robot.adapt(robot.stage_C2, time = 0.8, goal_ = 'N'))
+	# task_7 = Task('Raise shank', task_6.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_3'))
+	# rospy.loginfo('%s',robot.stop())
+	# task_8 = Task('Navigate till shank on step', task_7.end, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s',robot.adapt(robot.stage_C3, time = 0.8, goal_ = 'N'))
 	# rospy.loginfo('%s',robot.stop())
+	# task_9 = Task('Balancing action', task_8.end, rospy.Time.now().to_sec())
 	# rospy.loginfo(robot.start(time = 2))
+	# task_10 = Task('Back to default', task_9.end, rospy.Time.now().to_sec())
 
-    # Manual control  -- STEP CLIMBING 
-	rospy.loginfo('MODE A DEFAULT: %s',robot.start(time = 2)) # MODE A DEFAULT
-	rospy.loginfo('%s', robot.locomote_shank('shank_footprint', 'goal_1'))
-	rospy.loginfo('%s', robot.stop())
-	rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0, 0, 0, -0.205, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0.7, 0, 0.3, -0.205, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0.8, 0, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('MODE D STAB_IN TORSO BACK: %s',robot.start(time = 2, positions = [1.35, 0.2, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('MODE C STAB_UP: %s',robot.start(time = 2, positions = [0, 0.2, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('%s', robot.locomote_lhm_shank('shank_footprint', 'm_goal_1'))
-	rospy.loginfo('%s', robot.stop())
-	rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 2, positions = [0.9, 0, 0.3, -0.24, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 2, positions = [0.5, 0, 0.3, -0.32, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_3'))
-	rospy.loginfo('%s', robot.stop())
+	# f = open('Autonomous_step_climbing.txt','w')
+	# f.write(task_1.get()+'\n')
+	# f.write(task_2.get()+'\n')
+	# f.write(task_3.get()+'\n')
+	# f.write(task_4.get()+'\n')
+	# f.write(task_5.get()+'\n')
+	# f.write(task_6.get()+'\n')
+	# f.write(task_7.get()+'\n')
+	# f.write(task_8.get()+'\n')
+	# f.write(task_9.get()+'\n')
+	# f.write(task_10.get()+'\n')
+	# f.close()
+	# print task_1
+	# print task_2
+	# print task_3
+	# print task_4
+	# print task_5
+	# print task_6
+	# print task_7
+	# print task_8
+	# print task_9
+	# print task_10
+
+
+
+
+#################### Manual step climbing #############
+
+	time = rospy.Time.now().to_sec()
 	rospy.loginfo(robot.start(time = 2))
+	task_1 = Task('DEFAULT', time, rospy.Time.now().to_sec())
+	rospy.loginfo('%s', robot.locomote_shank('shank_footprint', 'goal_1'))
+	task_2 = Task('mode A navigate', task_1.end, rospy.Time.now().to_sec())
+	rospy.loginfo('%s', robot.stop())
+	robot.start(time=4, positions = [0, 0, 0, -0.22, -0, -0, 0, 0])
+	task_3 = Task('Extend LHM', task_2.end, rospy.Time.now().to_sec())
+	robot.start(time=5, positions = [1, 0.08, 0.25, -0.22, -0, -0, 0, 0])
+	robot.start(time=5, positions = [1, 0.08, 0.25, -0.15, -0, -0, 0, 0])
+	task_4 = Task('Mode D', task_3.end, rospy.Time.now().to_sec())
+	robot.start(time=5, positions = [0.7, 0, 0.25, -0.15, -0, -0, 0, 0])
+	task_5 = Task('Mode C', task_4.end, rospy.Time.now().to_sec())
+	rospy.loginfo('%s', robot.locomote_lhm_shank('shank_footprint', 'm_goal_1'))
+	task_6 = Task('Navigate until stabilizer above step', task_5.end, rospy.Time.now().to_sec())
+	rospy.loginfo('%s', robot.stop())
+	robot.start(time=4, positions = [0, 0, 0.25, -0.15, -0, -0, 0, 0])
+	robot.start(time=4, positions = [0, 0, -0.1, -0.3, -0, -0, 0, 0])
+	task_7 = Task('Extend LHM further, raise shank', task_6.end, rospy.Time.now().to_sec())
+	rospy.loginfo('%s',robot.locomote_lhm_shank_no_rotate('shank_footprint', 'm_step_goal_2'))
+	rospy.loginfo('%s', robot.stop())
+	task_8 = Task('Navigate till shank on step', task_7.end, rospy.Time.now().to_sec())
+	robot.start(time=4, positions = [0, 0, -0, -0, -0, -0, 0, 0])
+	task_9 = Task('Back to default', task_8.end, rospy.Time.now().to_sec())
 
+	f = open('Manual_step_climbing.txt','w')
+	f.write(task_1.get()+'\n')
+	f.write(task_2.get()+'\n')
+	f.write(task_3.get()+'\n')
+	f.write(task_4.get()+'\n')
+	f.write(task_5.get()+'\n')
+	f.write(task_6.get()+'\n')
+	f.write(task_7.get()+'\n')
+	f.write(task_8.get()+'\n')
+	f.write(task_9.get()+'\n')
+	f.close()
 
-    # Manual control  -- CREVICE CROSSING 
+	print task_1
+	print task_2
+	print task_3
+	print task_4
+	print task_5
+	print task_6
+	print task_7
+	print task_8
+	print task_9
 
- #    mode_a_msg.mission[0] = 'DEFAULT'
- #    mode_a_msg.entry_status[0] = 'PENDING'
- #    mode_a_msg.begin[0] = rospy.Time.now()
- #    mode_a_msg.end[0] = rospy.Time.now()
- #    mode_a_msg.exit_status[0] = msg
+    # Manual control  -- CREVICE CROSSING ------------------------
 
-    
-
- #    msg = robot.start(time = 2)
+	# # msg = robot.start(time = 2)
+	# time = rospy.Time.now().to_sec()
 	# rospy.loginfo('MODE A DEFAULT: %s', robot.start(time = 2)) # MODE A DEFAULT
+	# task_1 = Task('DEFAULT', time, rospy.Time.now().to_sec())
 	# rospy.loginfo('%s', robot.locomote_shank('shank_footprint', 'shank_goal_crevice'))
 	# rospy.loginfo('%s', robot.stop())
+	# task_2 = Task('DEFAULT', task_1.end, rospy.Time.now().to_sec())
+	# robot.start(time=4, positions = [0, 0, 0, -0.22, -0, -0, 0, 0])
+	# task_3 = Task('Extend LHM (mode D)', task_2.end, rospy.Time.now().to_sec())
+	# robot.start(time=5, positions = [1, 0.08, 0.25, -0.22, -0, -0, 0, 0])
 
-	# rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0.8, 0, 0.3, -0.205, 0, 0, 0, 0])) # MODE D
-	# rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0.8, 0, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
-	# rospy.loginfo('MODE D STAB_IN TORSO BACK: %s',robot.start(time = 2, positions = [1.35, 0.2, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
-	# rospy.loginfo('MODE C STAB_UP: %s',robot.start(time = 2, positions = [0.4, 0.2, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
+	# robot.start(time=5, positions = [1, 0.08, 0.25, -0.15, -0, -0, 0, 0])
+
+	# # task_4 = Task('Mode D', task_3.end, rospy.Time.now().to_sec())
+	# robot.start(time=5, positions = [0.7, 0, 0.25, -0.15, -0, -0, 0, 0])
+	# task_4 = Task('Raise Stab (mode D -> C)', task_3.end, rospy.Time.now().to_sec())
+
 	# rospy.loginfo('%s', robot.locomote_lhm_shank('shank_footprint', 'crevice_goal'))
 	# rospy.loginfo('%s', robot.stop())
+	# task_5 = Task('Locomote until stab above next platform (mode C)', task_4.end, rospy.Time.now().to_sec())
 	# # rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0, 0, 0.3, -0.24, 0, 0, 0, 0])) # MODE D
-	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0.4, 0, 0, -0.23, 0, 0, 0, 0])) # MODE D
-	# rospy.loginfo('%s',robot.locomote_lhm('shank_footprint', 'm_crevice_goal_2'))
+	# # rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0.7, 0, 0, -0.23, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('Extend LHM: %s',robot.start(time = 5, positions = [0.7, 0, 0.25, -0.19, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0.7, 0, 0.2, -0.23, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0.7, 0, 0.2, -0.26, 0, 0, 0, 0])) # MODE D
+	# task_6 = Task('Extend LHM, raise shank, lower stabilizer (mode B)', task_5.end, rospy.Time.now().to_sec())
+	# rospy.loginfo('%s',robot.locomote_lhm_shank_no_rotate('shank_footprint', 'm_crevice_goal_2'))
+	# rospy.loginfo('%s', robot.stop())
+	# task_7 = Task('Locomote until shank above platform (mode B)', task_6.end, rospy.Time.now().to_sec())
+	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0.7, 0, 0.2, -0, 0, 0, 0, 0])) # MODE D
+	# task_8 = Task('Retract LHM (mode A)', task_7.end, rospy.Time.now().to_sec())
+
+	# # rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0, 0.1, 0, -0.03, 0, 0, 0, 0])) # MODE D
+	# # rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0, 0.1, 0, -0.23, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0, 0.1, 0, -0, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 2)) # MODE D
+	# task_9 = Task('Back to default (mode A)', task_8.end, rospy.Time.now().to_sec())
+	
+ #    # Manual control  -- CREVICE CROSSING ------------------------
+
+
+	# f = open('Manual_crevice_crossing.txt','w')
+	# f.write(task_1.get()+'\n')
+	# f.write(task_2.get()+'\n')
+	# f.write(task_3.get()+'\n')
+	# f.write(task_4.get()+'\n')
+	# f.write(task_5.get()+'\n')
+	# f.write(task_6.get()+'\n')
+	# f.write(task_7.get()+'\n')
+	# f.write(task_8.get()+'\n')
+	# f.write(task_9.get()+'\n')
+	# f.close()
+
+
+
+	# robot.start(time=2)
+
 	# rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_3'))
-	rospy.loginfo('%s', robot.stop())
-	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0, 0.1, 0, -0.03, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 5, positions = [0, 0.1, 0, -0.23, 0, 0, 0, 0])) # MODE D
-	rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 2)) # MODE D
-	rospy.loginfo(robot.start(time = 2))
 
 	# rospy.loginfo('MODE C STAB_UP: %s',robot.start(time = 2, positions = [1.2, 0.15, 0, -0.24, 0, 0, 0, 0])) # MODE D
 	# rospy.loginfo('MODE C STAB UP: %s',robot.start(time = 2), x0 = [0, 0, 0, -0.2, 0, 0, 0, 0]) # MODE D
 
 	## robot.rotate('shank_footprint','goal_3',0)
 
-	
+		# rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0.8, 0, 0.3, -0.205, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0.8, 0, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE D STAB_IN TORSO BACK: %s',robot.start(time = 2, positions = [1.35, 0.2, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE C STAB_UP: %s',robot.start(time = 2, positions = [0.4, 0.2, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
+
 
 
 if __name__ == '__main__':
@@ -550,3 +699,36 @@ if __name__ == '__main__':
 	# 
 	# robot.adjust_height(desired_height = 1)
 	# robot.adjust_height(desired_height = 1, time = 0.1)
+
+
+    # Manual control  -- STEP CLIMBING 
+	# rospy.loginfo('MODE A DEFAULT: %s',robot.start(time = 2)) # MODE A DEFAULT
+	# rospy.loginfo('%s', robot.locomote_shank('shank_footprint', 'goal_1'))
+	# rospy.loginfo('%s', robot.stop())
+	# robot.start(time=4, positions = [0, 0, 0, -0.22, -0, -0, 0, 0])
+	# # task_3 = Task('Extend LHM', task_2.end, rospy.Time.now().to_sec())
+	# robot.start(time=5, positions = [1, 0.08, 0.25, -0.22, -0, -0, 0, 0])
+	# robot.start(time=5, positions = [1, 0.08, 0.25, -0.15, -0, -0, 0, 0])
+	# # task_4 = Task('Mode D', task_3.end, rospy.Time.now().to_sec())
+	# robot.start(time=5, positions = [0.7, 0, 0.25, -0.15, -0, -0, 0, 0])
+	# rospy.loginfo('MODE D STAB_IN TORSO BACK: %s',robot.start(time = 2, positions = [1.35, 0.2, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE C STAB_UP: %s',robot.start(time = 2, positions = [0, 0.2, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('%s', robot.locomote_lhm_shank('shank_footprint', 'm_goal_1'))
+	# rospy.loginfo('%s', robot.stop())
+	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 2, positions = [0.9, 0, 0.3, -0.24, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE B STAB_DOWN: %s',robot.start(time = 2, positions = [0.5, 0, 0.3, -0.32, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('%s',robot.locomote_lhm_shank('shank_footprint', 'goal_3'))
+	# rospy.loginfo('%s', robot.stop())
+	# rospy.loginfo(robot.start(time = 2))
+
+	# rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0, 0, 0, -0.205, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0.7, 0, 0.3, -0.205, 0, 0, 0, 0])) # MODE D
+	# rospy.loginfo('MODE D LHM_DOWN: %s',robot.start(time = 2, positions = [0.8, 0, 0.3, -0.2, 0, 0, 0, 0])) # MODE D
+
+
+	# robot.start(time=4, positions = [0, 0, 0, -0.22, -0, -0, 0, 0])
+	# # task_3 = Task('Extend LHM', task_2.end, rospy.Time.now().to_sec())
+	# robot.start(time=5, positions = [1, 0.08, 0.25, -0.22, -0, -0, 0, 0])
+	# robot.start(time=5, positions = [1, 0.08, 0.25, -0.15, -0, -0, 0, 0])
+	# # task_4 = Task('Mode D', task_3.end, rospy.Time.now().to_sec())
+	# robot.start(time=5, positions = [0.7, 0, 0.25, -0.15, -0, -0, 0, 0])

@@ -28,13 +28,15 @@
   <node pkg="tf" type="static_transform_publisher" name="step_goal" args="0.7 0 0 0 0 0 odom goal_2 100" />
 
   <node pkg="tf" type="static_transform_publisher" name="step_goal_2" args="0.89 0 0.08 0 0 0 odom goal_3 100" />
+
+  <node pkg="tf" type="static_transform_publisher" name="m_step_goal_2" args="0.84 0 0.08 0 0 0 odom m_step_goal_2 100" />
   
   <node pkg="tf" type="static_transform_publisher" name="shank_goal_crevice" args="1.17 0 0.2 0 0 0 odom shank_goal_crevice 100" />
 
   <node pkg="tf" type="static_transform_publisher" name="crevice_goal" args="1.65 0 0.2 0 0 0 odom crevice_goal 10" />
 
   <node pkg="tf" type="static_transform_publisher" name="crevice_goal_2" args="1.88 0 0.2 0 0 0 odom crevice_goal_2 10" />
-  <node pkg="tf" type="static_transform_publisher" name="m_crevice_goal_2" args="1.82 0 0.2 0 0 0 odom m_crevice_goal_2 10" />
+  <node pkg="tf" type="static_transform_publisher" name="m_crevice_goal_2" args="1.9 0 0.2 0 0 0 odom m_crevice_goal_2 10" />
   <!-- <node pkg="tf" type="static_transform_publisher" name="crevice_goal_2" args="1.91 0 0.2 0 0 0 odom crevice_goal_2 10" /> -->
 
 
