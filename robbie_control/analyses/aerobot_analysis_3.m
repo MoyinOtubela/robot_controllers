@@ -164,7 +164,7 @@ classdef aerobot_analysis_3
 			end
 
 			figure, plot(time, joints), 
-			grid on, title('Joint error positions vs Time'), xlabel('time (s)'), ylabel('joint position error'), legend('stabilser (rad)','thigh (rad)','hip (rad)','lhm (m)','left shoulder (rad)','right shoulder (rad)','left elbow (m)','right elbow (m)');
+			grid on, title('Joint error positions vs Time'), xlabel('time (s)'), ylabel('joint position error'), legend('stabilser (rad)','thigh (rad)','hip (rad)','lhm (m)','left shoulder (rad)','right shoulder (rad)','left elbow (m)','right elbow (m)'), ylim([-0.03, 0.03]);
 			
 			hold off
 		end
